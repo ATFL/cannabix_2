@@ -37,40 +37,55 @@ from pathlib import Path
 #################### Object Declaration ####################
 GPIO.setmode(GPIO.BOARD)
 # Linear Actuator
-pinLA = 12
-pinEnable = 18
+pinLA = 8
+pinEnable = 10
 linearActuator = LinearActuator(pinLA, pinEnable)
 # Analog-Digital Converter
 adc = Adafruit_ADS1x15.ADS1115(0x48)
+adc2 = Adafruit_ADS2x25.ADS1115(0x49)
 # MOS Sensor
 MOS_adc_channel = 0
 mos = MOS(adc, MOS_adc_channel)
+sensor1 = MOS(adc2, 0)
+sensor2 = MOS(adc2, 1)
+sensor3 = MOS(adc2, 2)
+sensor4 = MOS(adc2, 3)
 # Temperature sensor
 Temp_adc_channel = 1
 temperatureSensor = TemperatureSensor(adc, Temp_adc_channel)
+#Pressure Sensor
+Press_adc_channel = 0
+pressureSensor = PressureSensor(adc,Press_adc_channel)
 # Valves
 pinInValve = 8
 inValve = Valve('Inlet Valve', pinInValve)
 pinOutValve = 10
 outValve = Valve('Outlet Valve', pinOutValve)
+pinValve1 = 22
+pinValve2 = 24
+pinValve3 = 26
+
+valve1 = Valve('Valve 1', pinValve1)
+valve2 = Valve('Valve 2', pinValve2)
+valve3 = Valve('Valve 3', pinValve3)
 # Pump
-pinPump = 16
+pinPump = 12
 pump = Pump(pinPump)
 #################### System Variables ####################
 # Purging Variables
-clean_chamber_purge_time = 30 # normally 30s
-sensing_chamber_purge_time = 60 # normally 60s
+clean_chamber_purge_time = 15 # normally 30s
+sensing_chamber_purge_time = 15 # normally 60s
 # Filling Variables
-chamber_fill_time = 45 # normally 45, fill the sensing chamber with the outlet valve open.
+chamber_fill_time = cann_chamber_fill() # normally 45, fill the sensing chamber with the outlet valve open.
 chamber_force_fill_time = 1 # normally 1, fill the sensing chamber without an outlet.
 
 # Testing Variables
 sampling_time = 0.1 # time between samples taken, determines sampling frequency
 sensing_delay_time = 10 # normall 10, time delay after beginning data acquisition till when the sensor is exposed to sample
-sensing_retract_time = 60 # normally 60, time allowed before sensor is retracted, no longer exposed to sample
-duration_of_signal = 150 # normally 150, time allowed for data acquisition per test run
+sensing_retract_time = 130 # normally 60, time allowed before sensor is retracted, no longer exposed to sample
+duration_of_signal = 300 # normally 150, time allowed for data acquisition per test run
 #################### Data Array ####################
-# DO NOT TOUCH #
+# DO NOT TOUCH # -teehee touched
 dataVector = []
 timeVector = []
 #################### Color Settings ####################
@@ -163,7 +178,7 @@ class DataPage(tk.Frame):
         self.graph.place(relx=0,rely=0,relheight=0.9,relwidth=0.8)
 
         self.status = tk.StringVar()
-        self.status.set('  System ready.')
+        self.status.set('Ready for Breath Sample')
 
         self.progressTitle = tk.Label(self, textvariable = self.status, anchor='w')
         self.progressTitle.place(relx=0,rely=0.9,relheight=0.07,relwidth=0.8)

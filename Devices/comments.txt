@@ -1,0 +1,4 @@
+puring the chambers:
+1. purge sc: v1 off, v2
+
+Filling Sampling Chamber

@@ -98,6 +98,22 @@ class TemperatureSensor():
         self.read()
         print("\nReading from Temperature Sensor: {}".format(self.conversion_value))
 
+class PressureSensor():
+    def __init__(self, adc, channel):
+
+        self.GAIN = 2 / 3
+        self.adc = adc
+        self.channel = channel
+        self.conversion_value = self.adc.read_adc(self.channel,gain=self.GAIN)
+
+    def read(self):
+        self.conversion_value = self.adc.read_adc(self.channel,gain=self.GAIN)
+        return self.conversion_value
+
+    def print(self):
+        self.read()
+        print("\nReading from Pressure Sensor: {}".format(self.conversion_value))
+
 class Pump:
     def __init__(self, pin):
         self.pin = pin

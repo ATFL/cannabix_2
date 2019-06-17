@@ -31,8 +31,8 @@ import Adafruit_ADS1x15
 import serial
 from pathlib import Path
 #----> Machine learning Imports <----
-import pickle
-import sklearn
+# import pickle
+# import sklearn
 
 #################### Object Declaration ####################
 GPIO.setmode(GPIO.BOARD)

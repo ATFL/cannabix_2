@@ -2,8 +2,8 @@
 import RPi.GPIO as GPIO
 import time
 import os
-import Adafruit_ADS1x15
-
+#import Adafruit_ADS1x15
+import adafruit_ads1x15.ads1115 as ADS
 
 class LinearActuator:
     def __init__(self, pinLA , pinEnable):

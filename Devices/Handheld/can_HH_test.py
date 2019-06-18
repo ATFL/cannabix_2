@@ -27,7 +27,7 @@ from cannibix_components_HH import *
 import RPi.GPIO as GPIO
 import time
 import os
-import Adafruit_ADS1x15
+import adafruit_ads1x15.ads1115 as ADS
 import serial
 from pathlib import Path
 #----> Machine learning Imports <----

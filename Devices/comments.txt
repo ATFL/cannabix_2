@@ -1,4 +1,6 @@
 puring the chambers:
 1. purge sc: v1 off, v2
 
-Filling Sampling Chamber
+Filling Sampling Chamber:
+need to make a function
+the function will read the pressure input and if it hits passes a threshold it opens the valve  

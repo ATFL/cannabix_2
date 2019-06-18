@@ -41,8 +41,8 @@ pinLA = 8
 pinEnable = 10
 linearActuator = LinearActuator(pinLA, pinEnable)
 # Analog-Digital Converter
-adc = Adafruit_ADS1x15.ADS1115(0x48)
-adc2 = Adafruit_ADS2x25.ADS1115(0x49)
+adc = ADS.ADS1115(0x48)
+adc2 = ADS.ADS1115(0x49)
 # MOS Sensor
 MOS_adc_channel = 0
 mos = MOS(adc, MOS_adc_channel)

@@ -1,5 +1,5 @@
 import RPi.GPIO as GPIO
-import timeVector
+import time
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(10,GPIO.OUT)

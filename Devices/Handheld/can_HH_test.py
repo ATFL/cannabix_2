@@ -284,7 +284,7 @@ def suppress_buttons():
     app.frames[ManualControlPage].btn_7.config(state='disabled')
     app.frames[ManualControlPage].btn_8.config(state='disabled')
     app.frames[HomePage].exitBtn.config(state='disabled')
-    app.frames[HomePage].shutdownBtn.config(state='disabled')
+    app.frames[HomePage].shutdownBtn.config(state='disabled') #random
 
 def release_buttons():
     app.frames[ManualControlPage].btn_1.config(state='normal')

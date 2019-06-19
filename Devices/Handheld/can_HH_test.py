@@ -44,8 +44,7 @@ linearActuator = LinearActuator(pinLA, pinEnable)
 adc = ADS.ADS1115(0x48)
 adc2 = ADS.ADS1115(0x49)
 # MOS Sensor
-MOS_adc_channel = 0
-mos = MOS(adc, MOS_adc_channel)
+
 sensor1 = MOS(adc2, 0)
 sensor2 = MOS(adc2, 1)
 sensor3 = MOS(adc2, 2)
@@ -61,13 +60,13 @@ pinInValve = 8
 inValve = Valve('Inlet Valve', pinInValve)
 pinOutValve = 10
 outValve = Valve('Outlet Valve', pinOutValve)
-pinValve1 = 22
-pinValve2 = 24
-pinValve3 = 26
+pinValve1 = 24
+pinValve2 = 26
+
 
 valve1 = Valve('Valve 1', pinValve1)
 valve2 = Valve('Valve 2', pinValve2)
-valve3 = Valve('Valve 3', pinValve3)
+#valve3 = Valve('Valve 3', pinValve3)
 # Pump
 pinPump = 12
 pump = Pump(pinPump)
@@ -248,9 +247,9 @@ class ManualControlPage(tk.Frame):
         self.btn_4.place(relx=0,rely=0.3,relheight=0.1,relwidth=buttonWidth)
         self.btn_5 = tk.Button(controlFrame, text='Read Temperature Sensor', command=lambda:temperatureSensor.print())
         self.btn_5.place(relx=0,rely=0.4,relheight=0.1,relwidth=buttonWidth)
-        self.btn_6 = tk.Button(controlFrame, text='Switch Inlet Valve', command=lambda:inValve.switch())
+        self.btn_6 = tk.Button(controlFrame, text='Switch Valve 1', command=lambda:valve1.switch())
         self.btn_6.place(relx=0,rely=0.5,relheight=0.1,relwidth=buttonWidth)
-        self.btn_7 = tk.Button(controlFrame, text='Switch Outlet Valve', command=lambda:outValve.switch())
+        self.btn_7 = tk.Button(controlFrame, text='Switch Valve 2', command=lambda:valve2.switch())
         self.btn_7.place(relx=0,rely=0.6,relheight=0.1,relwidth=buttonWidth)
         self.btn_8 = tk.Button(controlFrame, text='Switch Pump', command=lambda:pump.switch())
         self.btn_8.place(relx=0,rely=0.7,relheight=0.1,relwidth=buttonWidth)

@@ -264,8 +264,8 @@ class ManualControlPage(tk.Frame):
         self.btn_1.place(relx=0,rely=0,relheight=0.1,relwidth=buttonWidth)
         self.btn_2 = tk.Button(controlFrame, text='Retract Linear Actuator', command=lambda:linearActuator.retract())#,app.frames[DataPage].stat_LA.set(linearActuator.state)])
         self.btn_2.place(relx=0,rely=0.1,relheight=0.1,relwidth=buttonWidth)
-        self.btn_3 = tk.Button(controlFrame, text='Default Linear Actuator', command=lambda:linearActuator.default())#,app.frames[DataPage].stat_LA.set(linearActuator.state)])
-        self.btn_3.place(relx=0,rely=0.2,relheight=0.1,relwidth=buttonWidth)
+        # self.btn_3 = tk.Button(controlFrame, text='Default Linear Actuator', command=lambda:linearActuator.default())#,app.frames[DataPage].stat_LA.set(linearActuator.state)])
+        # self.btn_3.place(relx=0,rely=0.2,relheight=0.1,relwidth=buttonWidth)
         self.btn_4 = tk.Button(controlFrame, text='Read Sensors', command=lambda:all_sensors.print())
         self.btn_4.place(relx=0,rely=0.3,relheight=0.1,relwidth=buttonWidth)
         self.btn_5 = tk.Button(controlFrame, text='Read Temperature Sensor', command=lambda:temperatureSensor.print())
@@ -283,8 +283,8 @@ class ManualControlPage(tk.Frame):
         lbl_1.place(relx=buttonWidth,rely=0,relheight=0.1,relwidth=(1-buttonWidth))
         lbl_2 = tk.Label(controlFrame, text='  Retract the linear actuator to the clean chamber.', anchor='w')
         lbl_2.place(relx=buttonWidth,rely=0.1,relheight=0.1,relwidth=(1-buttonWidth))
-        lbl_3 = tk.Label(controlFrame, text='  Reset the linear to the default (center) position.', anchor='w')
-        lbl_3.place(relx=buttonWidth,rely=0.2,relheight=0.1,relwidth=(1-buttonWidth))
+        # lbl_3 = tk.Label(controlFrame, text='  Reset the linear to the default (center) position.', anchor='w')
+        # lbl_3.place(relx=buttonWidth,rely=0.2,relheight=0.1,relwidth=(1-buttonWidth))
         lbl_4 = tk.Label(controlFrame, text='  Read the current value of the MOS (gas) sensor.', anchor='w')
         lbl_4.place(relx=buttonWidth,rely=0.3,relheight=0.1,relwidth=(1-buttonWidth))
         lbl_5 = tk.Label(controlFrame, text='  Read the current internal temperature of the device.', anchor='w')
@@ -357,8 +357,8 @@ def release_buttons():
 
 def purge_system():
 
-    if linearActuator.state != 'default':
-        linearActuator.default()
+    if linearActuator.state != 'retracted':
+        linearActuator.retract()
         #app.frames[DataPage].stat_LA.set(linearActuator.state)
 
     # Purge the clean chamber.

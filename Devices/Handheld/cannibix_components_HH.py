@@ -98,6 +98,21 @@ class TemperatureSensor():
         self.read()
         print("\nReading from Temperature Sensor: {}".format(self.conversion_value))
 
+class all_sensors:
+    def __init__(self,sens1,sens2,sens3,sens4):
+        self.sens1 = sens1
+        self.sens2 = sens2
+        self.sens3 = sens3
+        self.sens4 = sens4
+        def read(self):
+            self.sensVal1 = sens1.read()
+            self.sensVal2 = sens2.read()
+            self.sensVal3 = sens3.read()
+            self.sensVal4 = sens4.read()
+            return sensVal1, sensVal2, sensVal3, sensVal4
+        def print(self):
+            print("\nReading from all Sensors: \n{}".format(self.read()))
+            
 class PressureSensor():
     def __init__(self, adc, channel):
 

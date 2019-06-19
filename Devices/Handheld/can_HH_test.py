@@ -49,6 +49,9 @@ sensor1 = MOS(adc2, 0)
 sensor2 = MOS(adc2, 1)
 sensor3 = MOS(adc2, 2)
 sensor4 = MOS(adc2, 3)
+
+all_sensors = all_sensors(sensor1,sensor2,sensor3,sensor4)
+
 # Temperature sensor
 Temp_adc_channel = 1
 temperatureSensor = TemperatureSensor(adc, Temp_adc_channel)
@@ -243,7 +246,7 @@ class ManualControlPage(tk.Frame):
         self.btn_2.place(relx=0,rely=0.1,relheight=0.1,relwidth=buttonWidth)
         self.btn_3 = tk.Button(controlFrame, text='Default Linear Actuator', command=lambda:linearActuator.default())
         self.btn_3.place(relx=0,rely=0.2,relheight=0.1,relwidth=buttonWidth)
-        self.btn_4 = tk.Button(controlFrame, text='Read MOS', command=lambda:mos.print())
+        self.btn_4 = tk.Button(controlFrame, text='Read Sensors', command=lambda:all_sensors.print())
         self.btn_4.place(relx=0,rely=0.3,relheight=0.1,relwidth=buttonWidth)
         self.btn_5 = tk.Button(controlFrame, text='Read Temperature Sensor', command=lambda:temperatureSensor.print())
         self.btn_5.place(relx=0,rely=0.4,relheight=0.1,relwidth=buttonWidth)

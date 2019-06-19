@@ -99,18 +99,18 @@ class TemperatureSensor():
         print("\nReading from Temperature Sensor: {}".format(self.conversion_value))
 
 class all_sensors:
-    def __init__(self,adc):
+    def __init__(self,sens1,sens2,sens3,sens4):
         self.adc = adc
-        self.sens1 = MOS(adc,0)
-        self.sens2 = MOS(adc,1)
-        self.sens3 = MOS(adc,2)
-        self.sens4 = MOS(adc,3)
+        self.sens1 = sens1
+        self.sens2 = sens2
+        self.sens3 = sens3
+        self.sens4 = sens4
 
     def read(self):
-        self.sensVal1 = sens1.read()
-        self.sensVal2 = sens2.read()
-        self.sensVal3 = sens3.read()
-        self.sensVal4 = sens4.read()
+        self.sensVal1 = self.sens1.read()
+        self.sensVal2 = self.sens2.read()
+        self.sensVal3 = self.sens3.read()
+        self.sensVal4 = self.sens4.read()
         return sensVal1, sensVal2, sensVal3, sensVal4
 
     def print(self):

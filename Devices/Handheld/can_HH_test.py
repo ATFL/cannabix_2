@@ -50,7 +50,7 @@ sensor2 = MOS(adc2, 1)
 sensor3 = MOS(adc2, 2)
 sensor4 = MOS(adc2, 3)
 
-all_sensors = all_sensors(adc2)
+all_sensors = all_sensors(sensor1,sensor2,sensor3,sensor4)
 
 # Temperature sensor
 Temp_adc_channel = 1

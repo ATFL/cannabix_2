@@ -100,21 +100,21 @@ class TemperatureSensor():
 
 class all_sensors:
     def __init__(self,sens1,sens2,sens3,sens4):
-        self.sens1 = sens1
-        self.sens2 = sens2
-        self.sens3 = sens3
-        self.sens4 = sens4
+        self.sens1 = MOS(adc2,0)
+        self.sens2 = MOS(adc2,1)
+        self.sens3 = MOS(adc2,2)
+        self.sens4 = MOS(adc2,3)
 
     def read(self):
-            self.sensVal1 = sens1.read()
-            self.sensVal2 = sens2.read()
-            self.sensVal3 = sens3.read()
-            self.sensVal4 = sens4.read()
+        self.sensVal1 = sens1.read()
+        self.sensVal2 = sens2.read()
+        self.sensVal3 = sens3.read()
+        self.sensVal4 = sens4.read()
             return sensVal1, sensVal2, sensVal3, sensVal4
 
     def print(self):
-            temp1,temp2,temp3,temp4 = self.read()
-            print("\nReading from all Sensors: \n{}".format(self.read()))
+        temp1,temp2,temp3,temp4 = self.read()
+        print("\nReading from all Sensors: \n{}".format(self.read()))
 
 class PressureSensor():
     def __init__(self, adc, channel):

@@ -359,36 +359,36 @@ def purge_system():
 
     if linearActuator.state != 'default':
         linearActuator.default()
-        app.frames[DataPage].stat_LA.set(linearActuator.state)
+        #app.frames[DataPage].stat_LA.set(linearActuator.state)
 
     # Purge the sensing chamber.
     start_time = time.time() # Time at which the purging starts.
     while time.time() < (start_time + sensing_chamber_purge_time) and continueTest == True:
         if pump.state != True:
             pump.enable()
-            app.frames[DataPage].stat_pump.set(pump.state)
+            #app.frames[DataPage].stat_pump.set(pump.state)
         if inValve.state != True:
             inValve.enable()
-            app.frames[DataPage].stat_valve1.set(inValve.state)
+            #app.frames[DataPage].stat_valve1.set(inValve.state)
         if outValve.state != True:
             outValve.enable()
-            app.frames[DataPage].stat_valve2.set(outValve.state)
+            #app.frames[DataPage].stat_valve2.set(outValve.state)
 
     # Purge the clean chamber.
     start_time = time.time() #Reset the time at which purging starts.
     while time.time() < (start_time + clean_chamber_purge_time) and continueTest == True:
         if pump.state != True:
             pump.enable()
-            app.frames[DataPage].stat_pump.set(pump.state)
+            #app.frames[DataPage].stat_pump.set(pump.state)
         if inValve.state != False:
             inValve.disable()
-            app.frames[DataPage].stat_valve2.set(inValve.state)
+            #app.frames[DataPage].stat_valve2.set(inValve.state)
         if outValve.state != False:
             outValve.disable()
-            app.frames[DataPage].stat_valve2.set(outValve.state)
+            #app.frames[DataPage].stat_valve2.set(outValve.state)
 
     pump.disable() # Turn off the pump after purging.
-    app.frames[DataPage].stat_pump.set(pump.state)
+    #app.frames[DataPage].stat_pump.set(pump.state)
 
     pass
 

@@ -222,7 +222,7 @@ class DataPage(tk.Frame):
         stat_Valve2 = tk.Label(statusFrame, text=outValve.state, anchor='w')
         stat_Valve2.place(relx=.4,rely=0.2,relheight=0.1,relwidth=(1-0.4))
         stat_LA = tk.Label(statusFrame, text=linearActuator.state, anchor='w')
-        stat_LA.place(relx=.4,rely=0.3,relheight=0.1,relwidth=(1-0.4))
+        stat_LA.place(relx=.2,rely=0.3,relheight=0.1,relwidth=(1-0.4))
 
 
 

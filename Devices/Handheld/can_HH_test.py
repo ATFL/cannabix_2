@@ -277,7 +277,7 @@ class ManualControlPage(tk.Frame):
         self.btn_8 = tk.Button(controlFrame, text='Switch Pump', command=lambda:pump.switch())#,app.frames[DataPage].stat_pump.set(pump.state)])
         self.btn_8.place(relx=0,rely=0.7,relheight=0.1,relwidth=buttonWidth)
         self.btn_9 = tk.Button(controlFrame, text='Read Pressure', command=lambda:pressureSensor.print())
-        self.btn_9.place(relx=0,rely=0.7,relheight=0.1,relwidth=buttonWidth)
+        self.btn_9.place(relx=0,rely=0.8,relheight=0.1,relwidth=buttonWidth)
 
         lbl_1 = tk.Label(controlFrame, text='  Extend the linear actuator to the sensing chamber.', anchor='w')
         lbl_1.place(relx=buttonWidth,rely=0,relheight=0.1,relwidth=(1-buttonWidth))

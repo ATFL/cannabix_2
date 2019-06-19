@@ -133,7 +133,7 @@ class PressureSensor():
 
     def print(self):
         self.read()
-        print("\nReading from Pressure Sensor: {}".format(self.conversion_value))
+        print("\nReading from Pressure Sensor: \n{}".format(self.conversion_value))
 
 class Pump:
     def __init__(self, pin):

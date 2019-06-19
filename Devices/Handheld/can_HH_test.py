@@ -402,7 +402,7 @@ def collect_data(xVector,yVector):
     print('Starting data capture.')
     while (time.time() < (start_time + duration_of_signal)) and (continueTest == True):  # While time is less than duration of logged file
         if (time.time() > (start_time + (sampling_time * sampling_time_index)) and (continueTest == True)):  # if time since last sample is more than the sampling time, take another sample
-            dataVector.append(mos.read())  # Perform analog to digital function, reading voltage from first sensor channel
+            dataVector.append(all_sensors.read())  # Perform analog to digital function, reading voltage from first sensor channel
             timeVector.append(time.time() - start_time)
             sampling_time_index += 1
 

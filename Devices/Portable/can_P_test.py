@@ -22,7 +22,7 @@ import matplotlib.animation as animation
 from matplotlib import style
 # -----> Auxiliary Imports <------
 from gui_widgets import *
-from cannibix_components_HH import *
+from cannibix_components_P import *
 # -----> RPi Imports <------
 import RPi.GPIO as GPIO
 import time

@@ -260,21 +260,21 @@ class ManualControlPage(tk.Frame):
         rightControlFrame.place(relx=0.5,rely=0,relheight=1,relwidth=0.5)
 
         buttonWidth = 0.4 #Relative width of buttons within the frame
-        self.btn_1 = tk.Button(controlFrame, text='Extend Linear Actuator', command=lambda:linearActuator.extend())
+        self.btn_1 = tk.Button(controlFrame, text='Extend Linear Actuator', command=lambda:linearActuator.extend(),command=app.frames[DataPage].stat_LA.set(linearActuator.state))
         self.btn_1.place(relx=0,rely=0,relheight=0.1,relwidth=buttonWidth)
-        self.btn_2 = tk.Button(controlFrame, text='Retract Linear Actuator', command=lambda:linearActuator.retract())
+        self.btn_2 = tk.Button(controlFrame, text='Retract Linear Actuator', command=lambda:linearActuator.retract(),command=app.frames[DataPage].stat_LA.set(linearActuator.state))
         self.btn_2.place(relx=0,rely=0.1,relheight=0.1,relwidth=buttonWidth)
-        self.btn_3 = tk.Button(controlFrame, text='Default Linear Actuator', command=lambda:linearActuator.default())
+        self.btn_3 = tk.Button(controlFrame, text='Default Linear Actuator', command=lambda:linearActuator.default(),command=app.frames[DataPage].stat_LA.set(linearActuator.state))
         self.btn_3.place(relx=0,rely=0.2,relheight=0.1,relwidth=buttonWidth)
         self.btn_4 = tk.Button(controlFrame, text='Read Sensors', command=lambda:all_sensors.print())
         self.btn_4.place(relx=0,rely=0.3,relheight=0.1,relwidth=buttonWidth)
         self.btn_5 = tk.Button(controlFrame, text='Read Temperature Sensor', command=lambda:temperatureSensor.print())
         self.btn_5.place(relx=0,rely=0.4,relheight=0.1,relwidth=buttonWidth)
-        self.btn_6 = tk.Button(controlFrame, text='Switch Valve 1', command=lambda:valve1.switch())
+        self.btn_6 = tk.Button(controlFrame, text='Switch Valve 1', command=lambda:valve1.switch(),command=app.frames[DataPage].stat_valve1.set(inValve.state))
         self.btn_6.place(relx=0,rely=0.5,relheight=0.1,relwidth=buttonWidth)
-        self.btn_7 = tk.Button(controlFrame, text='Switch Valve 2', command=lambda:valve2.switch())
+        self.btn_7 = tk.Button(controlFrame, text='Switch Valve 2', command=lambda:valve2.switch(),command=app.frames[DataPage].stat_valve2.set(outValve.state))
         self.btn_7.place(relx=0,rely=0.6,relheight=0.1,relwidth=buttonWidth)
-        self.btn_8 = tk.Button(controlFrame, text='Switch Pump', command=lambda:pump.switch())
+        self.btn_8 = tk.Button(controlFrame, text='Switch Pump', command=lambda:pump.switch(),command=app.frames[DataPage].stat_pump.set(pump.state))
         self.btn_8.place(relx=0,rely=0.7,relheight=0.1,relwidth=buttonWidth)
         self.btn_9 = tk.Button(controlFrame, text='Read Pressure', command=lambda:pressureSensor.print())
         self.btn_9.place(relx=0,rely=0.7,relheight=0.1,relwidth=buttonWidth)
@@ -359,28 +359,37 @@ def purge_system():
 
     if linearActuator.state != 'default':
         linearActuator.default()
+        app.frames[DataPage].stat_LA.set(linearActuator.state)
 
     # Purge the sensing chamber.
     start_time = time.time() # Time at which the purging starts.
     while time.time() < (start_time + sensing_chamber_purge_time) and continueTest == True:
         if pump.state != True:
             pump.enable()
+            app.frames[DataPage].stat_pump.set(pump.state)
         if inValve.state != True:
             inValve.enable()
+            app.frames[DataPage].stat_valve1.set(inValve.state)
         if outValve.state != True:
             outValve.enable()
+            app.frames[DataPage].stat_valve2.set(outValve.state)
 
     # Purge the clean chamber.
     start_time = time.time() #Reset the time at which purging starts.
     while time.time() < (start_time + clean_chamber_purge_time) and continueTest == True:
         if pump.state != True:
             pump.enable()
+            app.frames[DataPage].stat_pump.set(pump.state)
         if inValve.state != False:
             inValve.disable()
+            app.frames[DataPage].stat_valve2.set(inValve.state)
         if outValve.state != False:
             outValve.disable()
+            app.frames[DataPage].stat_valve2.set(outValve.state)
 
     pump.disable() # Turn off the pump after purging.
+    app.frames[DataPage].stat_pump.set(pump.state)
+    
     pass
 
 def fill_chamber():

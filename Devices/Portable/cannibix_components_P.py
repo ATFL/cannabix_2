@@ -2,13 +2,8 @@
 import RPi.GPIO as GPIO
 import time
 import os
-import Adafruit_ADS1x15
-# import board
-# import busio
-# import adafruit_bme280
-# import adafruit_bme280_76
-# import digitalio
-# import adafruit_max31855
+#import Adafruit_ADS1x15
+import adafruit_ads1x15.ads1115 as ADS
 
 class LinearActuator:
     def __init__(self, pinLA , pinEnable):
@@ -26,7 +21,7 @@ class LinearActuator:
     def extend(self):
         print('Extending linear actuator.')
         GPIO.output(self.pinEnable, GPIO.HIGH)
-        self.pwm.ChangeDutyCycle(9)
+        self.pwm.ChangeDutyCycle(8.2)
         time.sleep(1.5)
         GPIO.output(self.pinEnable, GPIO.LOW)
         self.state = 'extended'
@@ -34,7 +29,7 @@ class LinearActuator:
     def retract(self):
         print('Retracting linear actuator.')
         GPIO.output(self.pinEnable, GPIO.HIGH)
-        self.pwm.ChangeDutyCycle(5)
+        self.pwm.ChangeDutyCycle(5.6)
         time.sleep(1.5)
         GPIO.output(self.pinEnable, GPIO.LOW)
         self.state = 'retracted'
@@ -73,15 +68,7 @@ class Valve:
 
 class MOS:
     def __init__(self, adc, channel):
-        # Choose a gain of 1 for reading voltages from 0 to 4.09V.
-        # Or pick a different gain to change the range of voltages that are read:
-        #  - 2/3 = +/-6.144V
-        #  -   1 = +/-4.096V
-        #  -   2 = +/-2.048V
-        #  -   4 = +/-1.024V
-        #  -   8 = +/-0.512V
-        #  -  16 = +/-0.256V
-        # See table 3 in the ADS1015/ADS1115 datasheet for more info on gain.
+
         self.GAIN = 2 / 3
         self.adc = adc
         self.channel = channel
@@ -97,15 +84,7 @@ class MOS:
 
 class TemperatureSensor():
     def __init__(self, adc, channel):
-        # Choose a gain of 1 for reading voltages from 0 to 4.09V.
-        # Or pick a different gain to change the range of voltages that are read:
-        #  - 2/3 = +/-6.144V
-        #  -   1 = +/-4.096V
-        #  -   2 = +/-2.048V
-        #  -   4 = +/-1.024V
-        #  -   8 = +/-0.512V
-        #  -  16 = +/-0.256V
-        # See table 3 in the ADS1015/ADS1115 datasheet for more info on gain.
+
         self.GAIN = 2 / 3
         self.adc = adc
         self.channel = channel
@@ -118,6 +97,43 @@ class TemperatureSensor():
     def print(self):
         self.read()
         print("\nReading from Temperature Sensor: {}".format(self.conversion_value))
+
+class all_sensors:
+    def __init__(self,sens1,sens2,sens3,sens4):
+        self.sens1 = sens1
+        self.sens2 = sens2
+        self.sens3 = sens3
+        self.sens4 = sens4
+        self.sensVal1 = self.sens1.read()
+        self.sensVal2 = self.sens2.read()
+        self.sensVal3 = self.sens3.read()
+        self.sensVal4 = self.sens4.read()
+    def read(self):
+        self.sensVal1 = self.sens1.read()
+        self.sensVal2 = self.sens2.read()
+        self.sensVal3 = self.sens3.read()
+        self.sensVal4 = self.sens4.read()
+        return self.sensVal1, self.sensVal2, self.sensVal3, self.sensVal4
+
+    def print(self):
+        temp1,temp2,temp3,temp4 = self.read()
+        print("\nReading from all Sensors: \n{}".format(self.read()))
+
+class PressureSensor():
+    def __init__(self, adc, channel):
+
+        self.GAIN = 2 / 3
+        self.adc = adc
+        self.channel = channel
+        self.conversion_value = self.adc.read_adc(self.channel,gain=self.GAIN)
+
+    def read(self):
+        self.conversion_value = self.adc.read_adc(self.channel,gain=self.GAIN)
+        return self.conversion_value
+
+    def print(self):
+        self.read()
+        print("\nReading from Pressure Sensor: \n{}".format(self.conversion_value))
 
 class Pump:
     def __init__(self, pin):

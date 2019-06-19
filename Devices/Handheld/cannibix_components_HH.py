@@ -104,16 +104,16 @@ class all_sensors:
         self.sens2 = sens2
         self.sens3 = sens3
         self.sens4 = sens4
-        self.sensVal1 = sens1.read()
-        self.sensVal2 = sens2.read()
-        self.sensVal3 = sens3.read()
-        self.sensVal4 = sens4.read()
+        self.sensVal1 = self.sens1.read()
+        self.sensVal2 = self.sens2.read()
+        self.sensVal3 = self.sens3.read()
+        self.sensVal4 = self.sens4.read()
     def read(self):
         self.sensVal1 = self.sens1.read()
         self.sensVal2 = self.sens2.read()
         self.sensVal3 = self.sens3.read()
         self.sensVal4 = self.sens4.read()
-        return sensVal1, sensVal2, sensVal3, sensVal4
+        return self.sensVal1, self.sensVal2, self.sensVal3, self.sensVal4
 
     def print(self):
         temp1,temp2,temp3,temp4 = self.read()

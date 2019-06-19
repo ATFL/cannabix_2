@@ -206,7 +206,7 @@ class DataPage(tk.Frame):
         statusFrame = tk.LabelFrame(self, text ='Status')
         statusFrame.place(relx=0.8,rely=0.3,relheight=0.6,relwidth=0.2)
         stat_pump = tk.Label(statusFrame, text='PUMP: OFF', anchor='w')
-        stat_pump.place(relx=0,rely=0,relheight=0.1,relwidth=(1-buttonWidth))
+        stat_pump.place(relx=0,rely=0,relheight=0.1,relwidth=(1-0.4))
 
         responseFrame = tk.Frame(self)
         responseFrame.place(relx=0.8,rely=0,relheight=0.3,relwidth=0.2)

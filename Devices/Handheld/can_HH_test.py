@@ -274,7 +274,7 @@ class ManualControlPage(tk.Frame):
         self.btn_6.place(relx=0,rely=0.5,relheight=0.1,relwidth=buttonWidth)
         self.btn_7 = tk.Button(controlFrame, text='Switch Valve 2', command=[lambda:valve2.switch(),app.frames[DataPage].stat_valve2.set(outValve.state)])
         self.btn_7.place(relx=0,rely=0.6,relheight=0.1,relwidth=buttonWidth)
-        self.btn_8 = tk.Button(controlFrame, text='Switch Pump', command=[lambda:pump.switch()app.frames[DataPage].stat_pump.set(pump.state)])
+        self.btn_8 = tk.Button(controlFrame, text='Switch Pump', command=[lambda:pump.switch(),app.frames[DataPage].stat_pump.set(pump.state)])
         self.btn_8.place(relx=0,rely=0.7,relheight=0.1,relwidth=buttonWidth)
         self.btn_9 = tk.Button(controlFrame, text='Read Pressure', command=lambda:pressureSensor.print())
         self.btn_9.place(relx=0,rely=0.7,relheight=0.1,relwidth=buttonWidth)

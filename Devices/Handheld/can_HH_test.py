@@ -256,6 +256,8 @@ class ManualControlPage(tk.Frame):
         self.btn_7.place(relx=0,rely=0.6,relheight=0.1,relwidth=buttonWidth)
         self.btn_8 = tk.Button(controlFrame, text='Switch Pump', command=lambda:pump.switch())
         self.btn_8.place(relx=0,rely=0.7,relheight=0.1,relwidth=buttonWidth)
+        self.btn_9 = tk.Button(controlFrame, text='Read Pressure', command=lambda:pressureSensor.read())
+        self.btn_9.place(relx=0,rely=0.7,relheight=0.1,relwidth=buttonWidth)
 
         lbl_1 = tk.Label(controlFrame, text='  Extend the linear actuator to the sensing chamber.', anchor='w')
         lbl_1.place(relx=buttonWidth,rely=0,relheight=0.1,relwidth=(1-buttonWidth))
@@ -273,6 +275,8 @@ class ManualControlPage(tk.Frame):
         lbl_7.place(relx=buttonWidth,rely=0.6,relheight=0.1,relwidth=(1-buttonWidth))
         lbl_8 = tk.Label(controlFrame, text='  Toggle the pump.', anchor='w')
         lbl_8.place(relx=buttonWidth,rely=0.7,relheight=0.1,relwidth=(1-buttonWidth))
+        lbl_9 = tk.Label(controlFrame, text='  Read the current Pressure.', anchor='w')
+        lbl_9.place(relx=buttonWidth,rely=0.8,relheight=0.1,relwidth=(1-buttonWidth))
 
 def suppress_buttons():
     app.frames[ManualControlPage].btn_1.config(state='disabled')
@@ -283,6 +287,7 @@ def suppress_buttons():
     app.frames[ManualControlPage].btn_6.config(state='disabled')
     app.frames[ManualControlPage].btn_7.config(state='disabled')
     app.frames[ManualControlPage].btn_8.config(state='disabled')
+    app.frames[ManualControlPage].btn_9.config(state='disabled')
     app.frames[HomePage].exitBtn.config(state='disabled')
     app.frames[HomePage].shutdownBtn.config(state='disabled') #random
 
@@ -295,6 +300,7 @@ def release_buttons():
     app.frames[ManualControlPage].btn_6.config(state='normal')
     app.frames[ManualControlPage].btn_7.config(state='normal')
     app.frames[ManualControlPage].btn_8.config(state='normal')
+    app.frames[ManualControlPage].btn_9.config(state='normal')
     app.frames[HomePage].exitBtn.config(state='normal')
     app.frames[HomePage].shutdownBtn.config(state='normal')
 
@@ -357,31 +363,21 @@ def purge_system():
     pass
 
 def fill_chamber():
+
     if linearActuator.state != 'retracted':
         linearActuator.retract()
-
-    # Fill the sensing chamber normally.
-    start_time = time.time()
-    while time.time() < (start_time + chamber_fill_time) and continueTest == True:
-        if pump.state != True:
-            pump.enable()
+    if inValve.state != False:
+        inValve.disable()
+    if pump.state != False:
+        pump.disable()
+    Print('Ready for Breath Input')
+    while(PressureSensor.read() < 5600):
+        print("BLOW HARDER")
+    while(PressureSensor.read() > 5600):
         if inValve.state != True:
             inValve.enable()
-        if outValve.state != True:
-            outValve.enable()
-
-    # Focfully fill the sensing chamber.
-    start_time = time.time()
-    while time.time() < (start_time + chamber_force_fill_time) and continueTest == True:
-        if pump.state != True:
-            pump.enable()
-        if inValve.state != True:
-            inValve.enable()
-        if outValve.state != False:
-            outValve.disable()
-
-    pump.disable()
-    pass
+    if inValve.state != False:
+        inValve.disable()
 
 def collect_data(xVector,yVector):
     start_time = time.time()  # Local value. Capture the time at which the test began. All time values can use start_time as a reference
@@ -462,8 +458,8 @@ def start_fill_thread():
     continueTest = True
     fill_thread = threading.Thread(target=fill_chamber)
     fill_thread.daemon = True
-    app.frames[DataPage].status.set('  Filling sample chamber...')
-    app.frames[DataPage].progressbar.start((chamber_fill_time+chamber_force_fill_time)*10)
+    app.frames[DataPage].status.set(' Collecting Breath Sample')
+    #app.frames[DataPage].progressbar.start((chamber_fill_time+chamber_force_fill_time)*10)
     fill_thread.start()
     app.after(20, check_fill_thread)
 

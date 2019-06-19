@@ -371,9 +371,9 @@ def fill_chamber():
     if pump.state != False:
         pump.disable()
     Print('Ready for Breath Input')
-    while(PressureSensor.read() < 5600):
+    while(pressureSensor.read() < 5600):
         print("BLOW HARDER")
-    while(PressureSensor.read() > 5600):
+    while(pressureSensor.read() > 5600):
         if inValve.state != True:
             inValve.enable()
     if inValve.state != False:

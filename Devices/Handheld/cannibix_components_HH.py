@@ -100,7 +100,6 @@ class TemperatureSensor():
 
 class all_sensors:
     def __init__(self,sens1,sens2,sens3,sens4):
-        self.adc = adc
         self.sens1 = sens1
         self.sens2 = sens2
         self.sens3 = sens3

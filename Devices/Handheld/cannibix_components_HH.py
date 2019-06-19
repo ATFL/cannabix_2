@@ -111,8 +111,9 @@ class all_sensors:
             self.sensVal4 = sens4.read()
             return sensVal1, sensVal2, sensVal3, sensVal4
         def print(self):
+            temp1,temp2,temp3,temp4 = self.read()
             print("\nReading from all Sensors: \n{}".format(self.read()))
-            
+
 class PressureSensor():
     def __init__(self, adc, channel):
 

@@ -75,17 +75,17 @@ pinPump = 12
 pump = Pump(pinPump)
 #################### System Variables ####################
 # Purging Variables
-clean_chamber_purge_time = 2 # normally 30s
-sensing_chamber_purge_time = 2 # normally 60s
+clean_chamber_purge_time = 15 # normally 30s
+sensing_chamber_purge_time = 15 # normally 60s
 # Filling Variables
 chamber_fill_time = 1 # normally 45, fill the sensing chamber with the outlet valve open.
 chamber_force_fill_time = 1 # normally 1, fill the sensing chamber without an outlet.
 
 # Testing Variables
 sampling_time = 0.1 # time between samples taken, determines sampling frequency
-sensing_delay_time = 1 # normall 10, time delay after beginning data acquisition till when the sensor is exposed to sample
-sensing_retract_time = 1 # normally 60, time allowed before sensor is retracted, no longer exposed to sample
-duration_of_signal = 1 # normally 150, time allowed for data acquisition per test run
+sensing_delay_time = 10 # normall 10, time delay after beginning data acquisition till when the sensor is exposed to sample
+sensing_retract_time = 50 # normally 60, time allowed before sensor is retracted, no longer exposed to sample
+duration_of_signal = 200 # normally 150, time allowed for data acquisition per test run
 #################### Data Array ####################
 # DO NOT TOUCH # -teehee touched
 dataVector = []
@@ -205,6 +205,8 @@ class DataPage(tk.Frame):
 
         statusFrame = tk.LabelFrame(self, text ='Status')
         statusFrame.place(relx=0.8,rely=0.3,relheight=0.6,relwidth=0.2)
+        stat_pump = tk.Label(statusFrame, text='PUMP: OFF', anchor='w')
+        lbl_1.place(relx=0,rely=0,relheight=0.1,relwidth=(1-buttonWidth))
 
         responseFrame = tk.Frame(self)
         responseFrame.place(relx=0.8,rely=0,relheight=0.3,relwidth=0.2)
@@ -372,7 +374,7 @@ def fill_chamber():
     if pump.state != False:
         pump.disable()
     print('Ready for Breath Input')
-    b_threshold_val = 5500
+    b_threshold_val = 5525
     while(pressureSensor.read() < b_threshold_val):
         print("BLOW HARDER")
     while(pressureSensor.read() > b_threshold_val):

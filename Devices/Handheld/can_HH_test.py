@@ -205,8 +205,26 @@ class DataPage(tk.Frame):
 
         statusFrame = tk.LabelFrame(self, text ='Status')
         statusFrame.place(relx=0.8,rely=0.3,relheight=0.6,relwidth=0.2)
-        stat_pump = tk.Label(statusFrame, text='PUMP: OFF', anchor='w')
-        stat_pump.place(relx=0,rely=0,relheight=0.1,relwidth=(1-0.4))
+
+        stat_pump_lbl = tk.Label(statusFrame, text='PUMP: ', anchor='w')
+        stat_pump_lbl.place(relx=0,rely=0,relheight=0.1,relwidth=(1-0.4))
+        stat_Valve1_lbl = tk.Label(statusFrame, text= 'Valve 1: ', anchor='w')
+        stat_Valve1_lbl.place(relx=0,rely=0.1,relheight=0.1,relwidth=(1-0.4))
+        stat_Valve2_lbl = tk.Label(statusFrame, text='Valve 2: ', anchor='w')
+        stat_Valve2_lbl.place(relx=0,rely=0.2,relheight=0.1,relwidth=(1-0.4))
+        stat_LA_lbl = tk.Label(statusFrame, text='LA: ', anchor='w')
+        stat_LA_lbl.place(relx=0,rely=0.3,relheight=0.1,relwidth=(1-0.4))
+
+        stat_pump = tk.Label(statusFrame, text=pump.state, anchor='w')
+        stat_pump.place(relx=.2,rely=0,relheight=0.1,relwidth=(1-0.4))
+        stat_Valve1 = tk.Label(statusFrame, text=inValve.state, anchor='w')
+        stat_Valve1.place(relx=.2,rely=0.1,relheight=0.1,relwidth=(1-0.4))
+        stat_Valve2 = tk.Label(statusFrame, text=outValve.state, anchor='w')
+        stat_Valve2.place(relx=.2,rely=0.2,relheight=0.1,relwidth=(1-0.4))
+        stat_LA = tk.Label(statusFrame, text=linearActuator.state, anchor='w')
+        stat_LA.place(relx=.2,rely=0.3,relheight=0.1,relwidth=(1-0.4))
+
+
 
         responseFrame = tk.Frame(self)
         responseFrame.place(relx=0.8,rely=0,relheight=0.3,relwidth=0.2)

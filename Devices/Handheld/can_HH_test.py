@@ -421,8 +421,8 @@ def collect_data(xVector,yVector):
     # Initial state checks
     if linearActuator.state != 'retracted':
         linearActuator.retract()
-    if inValve.state != True:
-        inValve.enable()
+    if inValve.state != False:
+        inValve.disable()
     if outValve.state != False:
         outValve.disable()
 

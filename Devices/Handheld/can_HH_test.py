@@ -260,7 +260,7 @@ class ManualControlPage(tk.Frame):
         rightControlFrame.place(relx=0.5,rely=0,relheight=1,relwidth=0.5)
 
         buttonWidth = 0.4 #Relative width of buttons within the frame
-        self.btn_1 = tk.Button(controlFrame, text='Extend Linear Actuator', command=[lambda:linearActuator.extend(),app.frames[DataPage].stat_LA.set(linearActuator.state)])
+        self.btn_1 = tk.Button(controlFrame, text='Extend Linear Actuator', command=[lambda:linearActuator.extend()])#,app.frames[DataPage].stat_LA.set(linearActuator.state)])
         self.btn_1.place(relx=0,rely=0,relheight=0.1,relwidth=buttonWidth)
         self.btn_2 = tk.Button(controlFrame, text='Retract Linear Actuator', command=[lambda:linearActuator.retract()])#,app.frames[DataPage].stat_LA.set(linearActuator.state)])
         self.btn_2.place(relx=0,rely=0.1,relheight=0.1,relwidth=buttonWidth)

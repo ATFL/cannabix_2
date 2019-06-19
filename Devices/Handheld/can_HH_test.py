@@ -336,6 +336,7 @@ def release_buttons():
 #     pass
 
 def purge_system():
+
     if linearActuator.state != 'default':
         linearActuator.default()
 
@@ -371,9 +372,10 @@ def fill_chamber():
     if pump.state != False:
         pump.disable()
     print('Ready for Breath Input')
-    while(pressureSensor.read() < 5600):
+    b_threshold_val = 5500
+    while(pressureSensor.read() < b_threshold_val):
         print("BLOW HARDER")
-    while(pressureSensor.read() > 5600):
+    while(pressureSensor.read() > b_threshold_val):
         if inValve.state != True:
             inValve.enable()
     if inValve.state != False:

@@ -364,9 +364,11 @@ def purge_system():
 
     # Purge the sensing chamber.
     start_time = time.time() # Time at which the purging starts.
+    messagebox.showinfo("Connect Pump", "Connect Pump into pump input and then press OK")
     while time.time() < (start_time + sensing_chamber_purge_time) and continueTest == True:
         if pump.state != True:
-            pump.enable()
+#    pump.enable()
+            print("Automatic pump here")
             #app.frames[DataPage].stat_pump.set(pump.state)
         if inValve.state != True:
             inValve.enable()
@@ -379,7 +381,8 @@ def purge_system():
     start_time = time.time() #Reset the time at which purging starts.
     while time.time() < (start_time + clean_chamber_purge_time) and continueTest == True:
         if pump.state != True:
-            pump.enable()
+            print("Automatic pump here") 
+            #pump.enable()
             #app.frames[DataPage].stat_pump.set(pump.state)
         if inValve.state != False:
             inValve.disable()
@@ -402,13 +405,13 @@ def fill_chamber():
     if pump.state != False:
         pump.disable()
     print('Ready for Breath')
-    b_threshold_val = 5525
-    while(pressureSensor.read() < b_threshold_val):
-        print("BLOW HARDER")
-    while(pressureSensor.read() > b_threshold_val):
-        print("Collecting sample")
-        # if inValve.state != True:
-        #     inValve.enable()
+    b_threshold_val = 5200
+#    while(pressureSensor.read() < b_threshold_val):
+#        print("BLOW HARDER: %d", pressureSensor.read())
+#    while(pressureSensor.read() > b_threshold_val):
+#        print("Collecting sample")
+#        # if inValve.state != True:
+#        #     inValve.enable()
     if inValve.state != False:
         inValve.disable()
     messagebox.showinfo("External Valve","Please Close Exeternal Valve, then click Okay.")

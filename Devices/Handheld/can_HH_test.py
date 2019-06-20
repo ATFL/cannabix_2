@@ -10,6 +10,7 @@ import threading
 # -----> Tkinter Imports <------
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 # -----> Matplotlib Imports <------
 import numpy as np
 import matplotlib.pyplot as plt
@@ -45,7 +46,7 @@ adc = ADS.ADS1115(0x48)
 adc2 = ADS.ADS1115(0x49)
 # MOS Sensor
 
-sensor1 = MOS(adc2, 0) #
+sensor1 = MOS(adc2, 0) 
 sensor2 = MOS(adc2, 1)
 sensor3 = MOS(adc2, 2)
 sensor4 = MOS(adc2, 3)
@@ -400,7 +401,7 @@ def fill_chamber():
         inValve.disable()
     if pump.state != False:
         pump.disable()
-    print('Ready to Purge Chamber')
+    print('Ready for Breath')
     b_threshold_val = 5525
     while(pressureSensor.read() < b_threshold_val):
         print("BLOW HARDER")
@@ -409,6 +410,7 @@ def fill_chamber():
             inValve.enable()
     if inValve.state != False:
         inValve.disable()
+    messagebox.showinfo("External Valve","Please Close Exeternal Valve, then click Okay.")
 
 def collect_data(xVector,yVector):
     start_time = time.time()  # Local value. Capture the time at which the test began. All time values can use start_time as a reference
@@ -479,7 +481,8 @@ def check_purge_thread():
     else:
         app.frames[DataPage].progressbar.stop()
         if continueTest ==True:
-            app.frames[DataPage].contFill.tkraise()
+            start_fill_thread()
+            #app.frames[DataPage].contFill.tkraise()
 
 def start_fill_thread():
     suppress_buttons()

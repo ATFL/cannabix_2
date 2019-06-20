@@ -301,7 +301,7 @@ class ManualControlPage(tk.Frame):
 def suppress_buttons():
     app.frames[ManualControlPage].btn_1.config(state='disabled')
     app.frames[ManualControlPage].btn_2.config(state='disabled')
-    app.frames[ManualControlPage].btn_3.config(state='disabled')
+    #app.frames[ManualControlPage].btn_3.config(state='disabled')
     app.frames[ManualControlPage].btn_4.config(state='disabled')
     app.frames[ManualControlPage].btn_5.config(state='disabled')
     # app.frames[ManualControlPage].btn_6.config(state='disabled')
@@ -314,7 +314,7 @@ def suppress_buttons():
 def release_buttons():
     app.frames[ManualControlPage].btn_1.config(state='normal')
     app.frames[ManualControlPage].btn_2.config(state='normal')
-    app.frames[ManualControlPage].btn_3.config(state='normal')
+    #app.frames[ManualControlPage].btn_3.config(state='normal')
     app.frames[ManualControlPage].btn_4.config(state='normal')
     app.frames[ManualControlPage].btn_5.config(state='normal')
     # app.frames[ManualControlPage].btn_6.config(state='normal')
@@ -324,36 +324,6 @@ def release_buttons():
     app.frames[HomePage].exitBtn.config(state='normal')
     app.frames[HomePage].shutdownBtn.config(state='normal')
 
-# def createFolders(year, month, day, combinedVector):
-#     ##  Get the path for the folders by year, month and day
-#     year_path = '/home/pi/Documents/Tests/' + str(year)
-#     year_folder = Path(year_path)
-#     month_path = '/home/pi/Documents/Tests/' + str(year) + '/' + str(month)
-#     month_folder = Path(month_path)
-#     day_path = '/home/pi/Documents/Tests/' + str(year) + '/' + str(month) + '/' + str(day)
-#     day_folder = Path(day_path)
-#     ##  Start creating the folders, when the var complete == True, all the folders have been created
-#     complete = False
-#     while complete == False:
-#         if year_folder.is_dir():
-#             if month_folder.is_dir():
-#                 if day_folder.is_dir():
-#                     complete = True
-#                 else:
-#                     try:
-#                         print(day_path)
-#                         original_mask = os.umask(0x0000)
-#                         desired_permission = os.umask(0x0777)
-#                         os.makedirs(day_path, mode=0x0777)
-#                         complete = True
-#                     finally:
-#                         os.umask(desired_permission)
-#             else:
-#                 os.makedirs(month_path)
-#         else:
-#             os.makedirs(year_path)
-#     os.umask(original_mask)
-#     pass
 
 def purge_system():
 

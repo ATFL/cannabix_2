@@ -197,8 +197,8 @@ class DataPage(tk.Frame):
         self.stopBtn = tk.Button(self.run_and_stop, text='STOP', bg=stopBtn_color, activebackground=stopBtn_color, command=lambda:end_testing())
         self.stopBtn.grid(row=0, column=0, sticky="nsew")
 
-        self.contFill = tk.Button(self.run_and_stop, text='CONTINUE', bg=runBtn_color, activebackground=runBtn_color, command=lambda:start_fill_thread())
-        self.contFill.grid(row=0, column=0, sticky="nsew")
+        # self.contFill = tk.Button(self.run_and_stop, text='CONTINUE', bg=runBtn_color, activebackground=runBtn_color, command=lambda:start_fill_thread())
+        # self.contFill.grid(row=0, column=0, sticky="nsew")
 
         self.runBtn = tk.Button(self.run_and_stop, text='RUN', bg=runBtn_color, activebackground=runBtn_color, command=lambda:start_purge_thread())
         self.runBtn.grid(row=0, column=0, sticky="nsew")
@@ -446,7 +446,8 @@ def check_purge_thread():
     else:
         app.frames[DataPage].progressbar.stop()
         if continueTest ==True:
-            app.frames[DataPage].contFill.tkraise()
+            #app.frames[DataPage].contFill.tkraise()
+            start_fill_thread()
 
 def start_fill_thread():
     suppress_buttons()

@@ -10,6 +10,7 @@ import threading
 # -----> Tkinter Imports <------
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 # -----> Matplotlib Imports <------
 import numpy as np
 import matplotlib.pyplot as plt

@@ -374,6 +374,7 @@ def fill_chamber():
 
     if linearActuator.state != 'retracted':
         linearActuator.retract()
+    messagebox.showinfo("Fill Chamber","Blow sample into device, once done close valves, and press okay")
     #Put an alert box
 
 def collect_data(xVector,yVector):

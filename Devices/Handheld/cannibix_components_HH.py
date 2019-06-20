@@ -72,10 +72,10 @@ class MOS:
         self.GAIN = 2 / 3
         self.adc = adc
         self.channel = channel
-        self.conversion_value = (self.adc.read_adc(self.channel,gain=self.GAIN))
+        self.conversion_value = (self.adc.read_adc(self.channel,gain=self.GAIN)/pow(2, 15))*6.144
 
     def read(self):
-        self.conversion_value = (self.adc.read_adc(self.channel,gain=self.GAIN))
+        self.conversion_value = (self.adc.read_adc(self.channel,gain=self.GAIN)/pow(2, 15))*6.144
         return self.conversion_value
 
     def print(self):

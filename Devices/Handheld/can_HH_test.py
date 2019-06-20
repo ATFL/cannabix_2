@@ -363,10 +363,13 @@ def purge_system():
         #app.frames[DataPage].stat_LA.set(linearActuator.state)
 
     # Purge the sensing chamber.
+    messagebox.showinfo("Connect Pump", "Connect Pump into pump input and then press OK")
     start_time = time.time() # Time at which the purging starts.
+
     while time.time() < (start_time + sensing_chamber_purge_time) and continueTest == True:
         if pump.state != True:
-            pump.enable()
+#    pump.enable()
+            print("Automatic pump here")
             #app.frames[DataPage].stat_pump.set(pump.state)
         if inValve.state != True:
             inValve.enable()
@@ -379,7 +382,8 @@ def purge_system():
     start_time = time.time() #Reset the time at which purging starts.
     while time.time() < (start_time + clean_chamber_purge_time) and continueTest == True:
         if pump.state != True:
-            pump.enable()
+            print("Automatic pump here")
+            #pump.enable()
             #app.frames[DataPage].stat_pump.set(pump.state)
         if inValve.state != False:
             inValve.disable()
@@ -395,20 +399,20 @@ def purge_system():
 
 def fill_chamber():
 
-    if linearActuator.state != 'retracted':
-        linearActuator.retract()
+    if linearActuator.state != 'extended':
+        linearActuator.extend()
     if inValve.state != True:
         inValve.enable()
     if pump.state != False:
         pump.disable()
     print('Ready for Breath')
-    b_threshold_val = 5525
-    while(pressureSensor.read() < b_threshold_val):
-        print("BLOW HARDER")
-    while(pressureSensor.read() > b_threshold_val):
-        print("Collecting sample")
-        # if inValve.state != True:
-        #     inValve.enable()
+    b_threshold_val = 5200
+#    while(pressureSensor.read() < b_threshold_val):
+#        print("BLOW HARDER: %d", pressureSensor.read())
+#    while(pressureSensor.read() > b_threshold_val):
+#        print("Collecting sample")
+#        # if inValve.state != True:
+#        #     inValve.enable()
     if inValve.state != False:
         inValve.disable()
     messagebox.showinfo("External Valve","Please Close Exeternal Valve, then click Okay.")
@@ -422,8 +426,8 @@ def collect_data(xVector,yVector):
     sampling_time_index = 1
 
     # Initial state checks
-    if linearActuator.state != 'retracted':
-        linearActuator.retract()
+    if linearActuator.state != 'extended':
+        linearActuator.extend()
     if inValve.state != False:
         inValve.disable()
     if outValve.state != False:
@@ -439,19 +443,19 @@ def collect_data(xVector,yVector):
         # If time is between 10-50 seconds and the Linear Actuator position sensor signal from the ADC indicates a retracted state, extend the sensor
         elif (time.time() >= (start_time + sensing_delay_time) and time.time() <= (
                 sensing_retract_time + start_time) and (continueTest == True)):
-            if linearActuator.state != 'extended':
-                linearActuator.extend()
+            if linearActuator.state != 'retracted':
+                linearActuator.retract()
 
         # If time is less than 10 seconds or greater than 50 seconds and linear actuator position sensor signal from the ADC indicates an extended state, retract the sensor
         elif (((time.time() < (sensing_delay_time + start_time)) or (
                 time.time() > (sensing_retract_time + start_time)))) and (continueTest == True):
-            if linearActuator.state != 'retracted':
-                linearActuator.retract()
+            if linearActuator.state != 'extended':
+                linearActuator.extend()
 
         # Otherwise, keep outputs off
         else:
-            if linearActuator.state != 'retracted':
-                linearActuator.retract()
+            if linearActuator.state != 'extended':
+                linearActuator.extend()
     print('Data Capture Complete')
     combinedVector = np.column_stack((timeVector, dataVector))
 

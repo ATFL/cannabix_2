@@ -10,6 +10,7 @@ import threading
 # -----> Tkinter Imports <------
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 # -----> Matplotlib Imports <------
 import numpy as np
 import matplotlib.pyplot as plt
@@ -196,8 +197,8 @@ class DataPage(tk.Frame):
         self.stopBtn = tk.Button(self.run_and_stop, text='STOP', bg=stopBtn_color, activebackground=stopBtn_color, command=lambda:end_testing())
         self.stopBtn.grid(row=0, column=0, sticky="nsew")
 
-        self.contFill = tk.Button(self.run_and_stop, text='CONTINUE', bg=runBtn_color, activebackground=runBtn_color, command=lambda:start_fill_thread())
-        self.contFill.grid(row=0, column=0, sticky="nsew")
+        # self.contFill = tk.Button(self.run_and_stop, text='CONTINUE', bg=runBtn_color, activebackground=runBtn_color, command=lambda:start_fill_thread())
+        # self.contFill.grid(row=0, column=0, sticky="nsew")
 
         self.runBtn = tk.Button(self.run_and_stop, text='RUN', bg=runBtn_color, activebackground=runBtn_color, command=lambda:start_purge_thread())
         self.runBtn.grid(row=0, column=0, sticky="nsew")
@@ -373,6 +374,7 @@ def fill_chamber():
 
     if linearActuator.state != 'retracted':
         linearActuator.retract()
+    messagebox.showinfo("Fill Chamber","Blow sample into device, once done close valves, and press okay")
     #Put an alert box
 
 def collect_data(xVector,yVector):
@@ -417,7 +419,7 @@ def collect_data(xVector,yVector):
     print('Data Capture Complete')
     combinedVector = np.column_stack((timeVector, dataVector))
 
-    filename = strftime("testsH/%a%-d%b%Y%H%M%S.csv",gmtime())
+    filename = strftime("testsP/%a%-d%b%Y%H%M%S.csv",gmtime())
     np.savetxt(filename,combinedVector, fmt='%.10f', delimiter=',')
 
 
@@ -444,7 +446,8 @@ def check_purge_thread():
     else:
         app.frames[DataPage].progressbar.stop()
         if continueTest ==True:
-            app.frames[DataPage].contFill.tkraise()
+            #app.frames[DataPage].contFill.tkraise()
+            start_fill_thread()
 
 def start_fill_thread():
     suppress_buttons()

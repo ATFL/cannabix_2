@@ -13,7 +13,7 @@ pwm.start(pwmVal)
 while(pwmVal != 0):
     pwmVal = float(input("What PWM: "))
     pwm.ChangeDutyCycle(pwmVal)
-    time.sleep(0.2)
+    time.sleep(1)
 
 pwm.stop()
 GPIO.cleanup()

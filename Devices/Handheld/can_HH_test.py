@@ -71,7 +71,7 @@ valve1 = Valve('Valve 1', pinValve1)
 valve2 = Valve('Valve 2', pinValve2)
 #valve3 = Valve('Valve 3', pinValve3)
 # Pump
-pinPump = 37
+pinPump = 11
 pump = Pump(pinPump)
 #################### System Variables ####################
 # Purging Variables

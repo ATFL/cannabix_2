@@ -15,31 +15,31 @@ class LinearActuator:
         self.pwm = GPIO.PWM(pinLA, 50)
         self.pwm.start(8.5)
         time.sleep(1)
-        GPIO.output(self.pinEnable, GPIO.LOW)
-        self.state = 'default'
+        #GPIO.output(self.pinEnable, GPIO.LOW)
+        self.state = 'retracted'
 
     def extend(self):
         print('Extending linear actuator.')
-        GPIO.output(self.pinEnable, GPIO.HIGH)
+        #GPIO.output(self.pinEnable, GPIO.HIGH)
         self.pwm.ChangeDutyCycle(4.5)
         time.sleep(1)
-        GPIO.output(self.pinEnable, GPIO.LOW)
+        #GPIO.output(self.pinEnable, GPIO.LOW)
         self.state = 'extended'
 
     def retract(self):
         print('Retracting linear actuator.')
-        GPIO.output(self.pinEnable, GPIO.HIGH)
+        #GPIO.output(self.pinEnable, GPIO.HIGH)
         self.pwm.ChangeDutyCycle(8.5)
         time.sleep(1)
-        GPIO.output(self.pinEnable, GPIO.LOW)
+        #GPIO.output(self.pinEnable, GPIO.LOW)
         self.state = 'retracted'
 
     def default(self):
         print('Moving linear actuator to default(center) position.')
-        GPIO.output(self.pinEnable, GPIO.HIGH)
-        self.pwm.ChangeDutyCycle(7)
+        #GPIO.output(self.pinEnable, GPIO.HIGH)
+        self.pwm.ChangeDutyCycle(8.5)
         time.sleep(1)
-        GPIO.output(self.pinEnable, GPIO.LOW)
+        #GPIO.output(self.pinEnable, GPIO.LOW)
         self.state = 'default'
 
 class Valve:

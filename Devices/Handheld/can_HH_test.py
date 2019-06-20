@@ -46,7 +46,7 @@ adc = ADS.ADS1115(0x48)
 adc2 = ADS.ADS1115(0x49)
 # MOS Sensor
 
-sensor1 = MOS(adc2, 0) #
+sensor1 = MOS(adc2, 0) 
 sensor2 = MOS(adc2, 1)
 sensor3 = MOS(adc2, 2)
 sensor4 = MOS(adc2, 3)

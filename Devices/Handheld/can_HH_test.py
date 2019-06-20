@@ -397,8 +397,8 @@ def fill_chamber():
 
     if linearActuator.state != 'retracted':
         linearActuator.retract()
-    if inValve.state != False:
-        inValve.disable()
+    if inValve.state != True:
+        inValve.enable()
     if pump.state != False:
         pump.disable()
     print('Ready for Breath')
@@ -406,8 +406,9 @@ def fill_chamber():
     while(pressureSensor.read() < b_threshold_val):
         print("BLOW HARDER")
     while(pressureSensor.read() > b_threshold_val):
-        if inValve.state != True:
-            inValve.enable()
+        print("Collecting sample")
+        # if inValve.state != True:
+        #     inValve.enable()
     if inValve.state != False:
         inValve.disable()
     messagebox.showinfo("External Valve","Please Close Exeternal Valve, then click Okay.")

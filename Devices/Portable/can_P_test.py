@@ -157,7 +157,7 @@ class HomePage(tk.Frame):
         title = tk.Label(self, text=projectName, font=14, relief='solid')
         title.place(relx=0.2,rely=0.3,relwidth=0.6,relheight=0.15)
 
-        intro = '''Microfluidic-based natural gas detector. Developed by ATF Lab
+        intro = '''Microfluidic-based THC- Breathalyzer. Developed by ATF Lab
         [F11: Toggle Fullscreen]
         [Esc: Exit Fullscreen]'''
 
@@ -285,7 +285,7 @@ class ManualControlPage(tk.Frame):
         lbl_2.place(relx=buttonWidth,rely=0.1,relheight=0.1,relwidth=(1-buttonWidth))
         # lbl_3 = tk.Label(controlFrame, text='  Reset the linear to the default (center) position.', anchor='w')
         # lbl_3.place(relx=buttonWidth,rely=0.2,relheight=0.1,relwidth=(1-buttonWidth))
-        lbl_4 = tk.Label(controlFrame, text='  Read the current value of the MOS (gas) sensor.', anchor='w')
+        lbl_4 = tk.Label(controlFrame, text='  Read the current value of the MOS (gas) sensors.', anchor='w')
         lbl_4.place(relx=buttonWidth,rely=0.3,relheight=0.1,relwidth=(1-buttonWidth))
         lbl_5 = tk.Label(controlFrame, text='  Read the current internal temperature of the device.', anchor='w')
         lbl_5.place(relx=buttonWidth,rely=0.4,relheight=0.1,relwidth=(1-buttonWidth))
@@ -360,14 +360,16 @@ def purge_system():
     if linearActuator.state != 'retracted':
         linearActuator.retract()
         #app.frames[DataPage].stat_LA.set(linearActuator.state)
-
+    messagebox.showinfo("PUMP ON","Please Connect the Pump and turn on. Press Okay once ready.")
     # Purge the clean chamber.
     start_time = time.time() # Time at which the purging starts.
+
     while time.time() < (start_time + sensing_chamber_purge_time) and continueTest == True:
         if pump.state != True:
             pump.enable()
         if linearActuator.state != 'retracted':
             linearActuator.retract()
+
             #app.frames[DataPage].stat_pump.set(pump.state)
         # if inValve.state != True:
         #     inValve.enable()

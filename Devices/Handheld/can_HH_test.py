@@ -51,8 +51,13 @@ sensor2 = MOS(adc2, 1)
 sensor3 = MOS(adc2, 2)
 sensor4 = MOS(adc2, 3)
 
-all_sensors = all_sensors(sensor1,sensor2,sensor3,sensor4)
+sensor5 = MOS(adc, 0)
+sensor6 = MOS(adc, 1)
+sensor7 = MOS(adc, 2)
+sensor8 = MOS(adc, 3)
 
+all_sensors = all_sensors(sensor1,sensor2,sensor3,sensor4)
+all_sensors2 = all_sensors(sensor5,sensor6,sensor7,sensor8)
 # Temperature sensor
 Temp_adc_channel = 1
 temperatureSensor = TemperatureSensor(adc, Temp_adc_channel)

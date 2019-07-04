@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-
+#Last edit: 28/05/2019
 # -----> System Imports <-----
 import os
 import sys
@@ -10,7 +10,6 @@ import threading
 # -----> Tkinter Imports <------
 import tkinter as tk
 from tkinter import ttk
-from tkinter import messagebox
 # -----> Matplotlib Imports <------
 import numpy as np
 import matplotlib.pyplot as plt
@@ -23,77 +22,115 @@ import matplotlib.animation as animation
 from matplotlib import style
 # -----> Auxiliary Imports <------
 from gui_widgets import *
-from cannibix_components_HH import *
+from H2_components import *
 # -----> RPi Imports <------
 import RPi.GPIO as GPIO
 import time
 import os
-import Adafruit_ADS1x15 as ADS
+import Adafruit_ADS1x15 as ads
 import serial
 from pathlib import Path
-#----> Machine learning Imports <----
-# import pickle
+
+#---->
+import numpy as np
 # import sklearn
+# import pickle
 
 #################### Object Declaration ####################
 GPIO.setmode(GPIO.BOARD)
 # Linear Actuator
-pinLA = 8
-pinEnable = 10
+pinLA = 12
+pinEnable = 24
 linearActuator = LinearActuator(pinLA, pinEnable)
 # Analog-Digital Converter
-adc = ADS.ADS1115(0x48)
-adc2 = ADS.ADS1115(0x49)
+adc = ads.ADS1115(0x48)
 # MOS Sensor
+MOS_adc_channel = 0
+mos = MOS(adc, MOS_adc_channel)
+# Pressure sensor
+press_adc_channel = 1
+pressSensor = PressureSensor(adc,press_adc_channel)
 
-sensor1 = MOS(adc2, 0)
-sensor2 = MOS(adc2, 1)
-sensor3 = MOS(adc2, 2)
-sensor4 = MOS(adc2, 3)
-
-sensor5 = MOS(adc, 0)
-sensor6 = MOS(adc, 1)
-sensor7 = MOS(adc, 2)
-sensor8 = MOS(adc, 3)
-
-all_sensors = all_sensors(sensor1,sensor2,sensor3,sensor4)
-all_sensors2 = all_sensors(sensor5,sensor6,sensor7,sensor8)
-# Temperature sensor
-Temp_adc_channel = 1
-temperatureSensor = TemperatureSensor(adc, Temp_adc_channel)
-#Pressure Sensor
-Press_adc_channel = 0
-pressureSensor = PressureSensor(adc,Press_adc_channel)
 # Valves
-pinInValve = 8
-inValve = Valve('Inlet Valve', pinInValve)
-pinOutValve = 10
-outValve = Valve('Outlet Valve', pinOutValve)
-pinValve1 = 24
-pinValve2 = 26
+
+pinvalve1 = 7
+pinvalve2 = 13
+pinvalve3 = 15
+pinvalve4 = 16
+pinvalve5 = 18
+pinvalve6 = 22
+
+valve1 = Valve('Valve1',pinvalve1) #Methane Tank to MFC
+valve2 = Valve('Valve2',pinvalve2) #H2 Tank to MFC
+valve3 = Valve('Valve3',pinvalve3) #Line Venting
+valve4 = Valve('Valve4',pinvalve4) #Sample Gas into Chamber
+valve5 = Valve('Valve5',pinvalve5) #Air into Chamber
+valve6 = Valve('Valve6',pinvalve6) #Chamber Exhaust
+
+################## EXPERIMENTAL STEPS ################
 
 
-valve1 = Valve('Valve 1', pinValve1)
-valve2 = Valve('Valve 2', pinValve2)
-#valve3 = Valve('Valve 3', pinValve3)
-# Pump
-pinPump = 11
-pump = Pump(pinPump)
+#STEP 1: PURGE BOX::: V1:N V2:N V3:N V4:N V5:Y V6:Y
+#STEP 2: FILL METHANE P1::: V1:Y V2:N V3:Y V4:N V5:N V6:N
+#STEP 3: FILL METHANE P2::: V1:Y V2:N V3:N V4:Y V5:N V6:Y
+#STEP 4: FILL H2 P1::: V1:N V2:Y V3:Y V4:N V5:N V6:N
+#STEP 5: FILL H2 P2::: V1:N V2:Y V3:N V4:Y V5:N V6:Y
+#STEP 6: TEST::: V1:N V2:N V3:N V4:N V5:N V6:N
+
 #################### System Variables ####################
-# Purging Variables
-clean_chamber_purge_time = 15 # normally 30s
-sensing_chamber_purge_time = 15 # normally 60s
+
+#PURGING VARIABLES
+chamber_purge_time = 5 #Time to purge chamber: experiment with it
+
+
+#########FILLING CHAMBER WITH TARGET GAS #############
 # Filling Variables
-chamber_fill_time = 1 # normally 45, fill the sensing chamber with the outlet valve open.
-chamber_force_fill_time = 1 # normally 1, fill the sensing chamber without an outlet.
+fill_line_clense_time = 5
+
+##############################################################
+######## SAMPLE INJECTION CONCENTRATIONS #####################
+methane_injection_conc = [100,200,300,400] #Whatever vales you need
+hydrogen_injection_conc = [0,0,0,0] #whatever values you need
+##############################################################
+##############################################################
+
+global test_counter
+test_counter = 0
+global num_tests
+num_tests = len(methane_injection_conc)
+
+##############################################
+
+fill_methane_time = [0,0,0,0]
+#fill_methane_time = [0] * len
+methane_correction_factor = 0.72#found it on MKS website
+methane_flow_rate = 10#what the value on the MFC is set to
+methane_flow_factor = 60/(500*methane_correction_factor*methane_flow_rate)
+
+fill_hydrogen_time =  [0,0,0,0]
+#fill_hydrogen_time = [0] * num_tests
+hydrogen_correction_factor = 1.01#found it on MKS website
+hydrogen_flow_rate = 10#what the value on the MFC is set to
+hydrogen_flow_factor = 60/(500*hydrogen_correction_factor*hydrogen_flow_rate)
+
+for i in range(0, len(hydrogen_injection_conc)-1):
+    fill_methane_time[i] = int(methane_injection_conc[i]*methane_flow_factor)
+    fill_hydrogen_time[i] = int(hydrogen_injection_conc[i]*hydrogen_flow_factor)
+#########################################################\
 
 # Testing Variables
-sampling_time = 0.1 # time between samples taken, determines sampling frequency
-sensing_delay_time = 5 # normall 10, time delay after beginning data acquisition till when the sensor is exposed to sample
-sensing_retract_time =50# 50 # normally 60, time allowed before sensor is retracted, no longer exposed to sample
-duration_of_signal = 200#200 # normally 150, time allowed for data acquisition per test run
+sampling_time = 0.1 # tim50e between samples taken, determines sampling frequency
+sensing_delay_time = 3 # normall 5, time delay after beginning data acquisition till when the sensor is exposed to sample
+sensing_retract_time = 5 # normally 50, time allowed before sensor is retracted, no longer exposed to sample
+duration_of_signal = 10 # normally 150, time allowed for data acquisition per test run
+
+#total_time = chamber_purge_time + fill_line_clense_time + max(fill_methane_time,fill_hydrogen_time) + duration_of_signal
+
+######### TESTING ARRAY #########################
+
+
 #################### Data Array ####################
-# DO NOT TOUCH # -teehee touched
+# DO NOT TOUCH #
 dataVector = []
 timeVector = []
 #################### Color Settings ####################
@@ -104,8 +141,8 @@ runBtn_color = '#9DE55F'
 stopBtn_color = '#FF4E4E'
 
 #################### GUI ####################
-projectName = 'Cannibix HH GUI'
-class CannibixHHGUI(tk.Tk):
+projectName = 'Hetek Project'
+class HetekGUI(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs) #Passes all aguments to the parent class.
 
@@ -186,13 +223,13 @@ class DataPage(tk.Frame):
         self.graph.place(relx=0,rely=0,relheight=0.9,relwidth=0.8)
 
         self.status = tk.StringVar()
-        self.status.set('Ready for Breath Sample')
+        self.status.set('  System ready.')
 
         self.progressTitle = tk.Label(self, textvariable = self.status, anchor='w')
         self.progressTitle.place(relx=0,rely=0.9,relheight=0.07,relwidth=0.8)
 
-        self.progressbar = ttk.Progressbar(self, orient='horizontal', mode='determinate', maximum=100)
-        self.progressbar.place(relx=0,rely=0.97,relheight=0.03,relwidth=0.8)
+        #self.progressbar = ttk.Progressbar(self, orient='horizontal', mode='determinate', maximum=100)
+        #self.progressbar.place(relx=0,rely=0.97,relheight=0.03,relwidth=0.8)
 
         self.run_and_stop = tk.Frame(self)
         self.run_and_stop.place(relx=0.8,rely=0.9,relheight=0.1,relwidth=0.2)
@@ -205,47 +242,37 @@ class DataPage(tk.Frame):
         self.contFill = tk.Button(self.run_and_stop, text='CONTINUE', bg=runBtn_color, activebackground=runBtn_color, command=lambda:start_fill_thread())
         self.contFill.grid(row=0, column=0, sticky="nsew")
 
-        self.runBtn = tk.Button(self.run_and_stop, text='RUN', bg=runBtn_color, activebackground=runBtn_color, command=lambda:start_purge_thread())
+        self.runBtn = tk.Button(self.run_and_stop, text='RUN', bg=runBtn_color, activebackground=runBtn_color, command=lambda:multi_test_run())
         self.runBtn.grid(row=0, column=0, sticky="nsew")
 
 
         statusFrame = tk.LabelFrame(self, text ='Status')
         statusFrame.place(relx=0.8,rely=0.3,relheight=0.6,relwidth=0.2)
-
-        stat_pump_lbl = tk.Label(statusFrame, text='PUMP: ', anchor='w')
-        stat_pump_lbl.place(relx=0,rely=0,relheight=0.1,relwidth=(1-0.4))
-        stat_Valve1_lbl = tk.Label(statusFrame, text= 'Valve 1: ', anchor='w')
-        stat_Valve1_lbl.place(relx=0,rely=0.1,relheight=0.1,relwidth=(1-0.4))
-        stat_Valve2_lbl = tk.Label(statusFrame, text='Valve 2: ', anchor='w')
-        stat_Valve2_lbl.place(relx=0,rely=0.2,relheight=0.1,relwidth=(1-0.4))
-        stat_LA_lbl = tk.Label(statusFrame, text='LA: ', anchor='w')
-        stat_LA_lbl.place(relx=0,rely=0.3,relheight=0.1,relwidth=(1-0.4))
-
-        stat_pump = tk.Label(statusFrame, text=pump.state, anchor='w')
-        stat_pump.place(relx=.4,rely=0,relheight=0.1,relwidth=(1-0.4))
-        stat_Valve1 = tk.Label(statusFrame, text=inValve.state, anchor='w')
-        stat_Valve1.place(relx=.4,rely=0.1,relheight=0.1,relwidth=(1-0.4))
-        stat_Valve2 = tk.Label(statusFrame, text=outValve.state, anchor='w')
-        stat_Valve2.place(relx=.4,rely=0.2,relheight=0.1,relwidth=(1-0.4))
-        stat_LA = tk.Label(statusFrame, text=linearActuator.state, anchor='w')
-        stat_LA.place(relx=.2,rely=0.3,relheight=0.1,relwidth=(1-0.4))
-
-
+        testLBL = tk.Label(statusFrame,text = 'Test: ')
+        meConcLBL = tk.Label(statusFrame,text = 'Methane Concentration: ')
+        H2ConcLBL = tk.Label(statusFrame,text = 'Hydrogen Concentration: ')
+        meFillTime = tk.Label(statusFrame,text = 'Methane Fill Time: ')
+        H2FillTime = tk.Label(statusFrame,text = 'Hydrogen Fill Time: ')
+        testLBL.place(relx = 0.1, rely = 0, relheight = 0.1, relwidth = 0.1)
+        meConcLBL.place(relx = 0.1, rely = 0.1, relheight = 0.1, relwidth = 0.5)
+        H2ConcLBL.place(relx = 0.1, rely = 0.2, relheight = 0.1, relwidth = 0.5)
+        meFillTime.place(relx = 0.1, rely = 0.3, relheight = 0.1, relwidth = 0.4)
+        H2FillTime.place(relx = 0.1, rely = 0.4, relheight = 0.1, relwidth = 0.4)
 
         responseFrame = tk.Frame(self)
         responseFrame.place(relx=0.8,rely=0,relheight=0.3,relwidth=0.2)
-        self.naturalGasLabel = tk.Label(responseFrame, text = 'THC\n Detected', relief='groove', borderwidth=2, anchor='center')
+        self.naturalGasLabel = tk.Label(responseFrame, text = 'Natural Gas\n Detected', relief='groove', borderwidth=2, anchor='center')
         self.naturalGasLabel.place(relx=0,rely=0,relheight=0.7,relwidth=1)
         self.orig_color = self.naturalGasLabel.cget("background") # Store the original color of the label.
 
-        # ppmDisplay = tk.Frame(responseFrame, relief='groove', borderwidth=2)
-        # ppmDisplay.place(relx=0,rely=0.7,relheight=0.3,relwidth=1)
-        # ppmLabel = tk.Label(ppmDisplay, text = 'PPM:')
-        # ppmLabel.place(relx=0,rely=0,relheight=1,relwidth=0.3)
-        # self.ppmVar = tk.IntVar()
-        # self.ppmVar.set(0)
-        # ppmDisplay = tk.Label(ppmDisplay, textvariable = self.ppmVar, anchor='w')
-        # ppmDisplay.place(relx=0.3,rely=0,relheight=1,relwidth=0.7)
+        ppmDisplay = tk.Frame(responseFrame, relief='groove', borderwidth=2)
+        ppmDisplay.place(relx=0,rely=0.7,relheight=0.3,relwidth=1)
+        ppmLabel = tk.Label(ppmDisplay, text = 'PPM:')
+        ppmLabel.place(relx=0,rely=0,relheight=1,relwidth=0.3)
+        self.ppmVar = tk.IntVar()
+        self.ppmVar.set(0)
+        ppmDisplay = tk.Label(ppmDisplay, textvariable = self.ppmVar, anchor='w')
+        ppmDisplay.place(relx=0.3,rely=0,relheight=1,relwidth=0.7)
 
 class ManualControlPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -266,43 +293,26 @@ class ManualControlPage(tk.Frame):
         rightControlFrame.place(relx=0.5,rely=0,relheight=1,relwidth=0.5)
 
         buttonWidth = 0.4 #Relative width of buttons within the frame
-        self.btn_1 = tk.Button(controlFrame, text='Extend Linear Actuator', command=lambda:linearActuator.extend())#,app.frames[DataPage].stat_LA.set(linearActuator.state)])
+        self.btn_1 = tk.Button(controlFrame, text='Extend Linear Actuator', command=lambda:linearActuator.extend())
         self.btn_1.place(relx=0,rely=0,relheight=0.1,relwidth=buttonWidth)
-        self.btn_2 = tk.Button(controlFrame, text='Retract Linear Actuator', command=lambda:linearActuator.retract())#,app.frames[DataPage].stat_LA.set(linearActuator.state)])
+        self.btn_2 = tk.Button(controlFrame, text='Retract Linear Actuator', command=lambda:linearActuator.retract())
         self.btn_2.place(relx=0,rely=0.1,relheight=0.1,relwidth=buttonWidth)
-        self.btn_3 = tk.Button(controlFrame, text='Default Linear Actuator', command=lambda:linearActuator.default())#,app.frames[DataPage].stat_LA.set(linearActuator.state)])
+        self.btn_3 = tk.Button(controlFrame, text='Read MOS', command=lambda:mos.print())
         self.btn_3.place(relx=0,rely=0.2,relheight=0.1,relwidth=buttonWidth)
-        self.btn_4 = tk.Button(controlFrame, text='Read Sensors', command=lambda:all_sensors.print())
+        self.btn_4 = tk.Button(controlFrame, text='Read Pressure', command=lambda:pressSensor.print())
         self.btn_4.place(relx=0,rely=0.3,relheight=0.1,relwidth=buttonWidth)
-        self.btn_5 = tk.Button(controlFrame, text='Read Temperature Sensor', command=lambda:temperatureSensor.print())
-        self.btn_5.place(relx=0,rely=0.4,relheight=0.1,relwidth=buttonWidth)
-        self.btn_6 = tk.Button(controlFrame, text='Switch Valve 1', command=lambda:valve1.switch())#,app.frames[DataPage].stat_valve1.set(inValve.state)])
-        self.btn_6.place(relx=0,rely=0.5,relheight=0.1,relwidth=buttonWidth)
-        self.btn_7 = tk.Button(controlFrame, text='Switch Valve 2', command=lambda:valve2.switch())#,app.frames[DataPage].stat_valve2.set(outValve.state)])
-        self.btn_7.place(relx=0,rely=0.6,relheight=0.1,relwidth=buttonWidth)
-        self.btn_8 = tk.Button(controlFrame, text='Switch Pump', command=lambda:pump.switch())#,app.frames[DataPage].stat_pump.set(pump.state)])
-        self.btn_8.place(relx=0,rely=0.7,relheight=0.1,relwidth=buttonWidth)
-        self.btn_9 = tk.Button(controlFrame, text='Read Pressure', command=lambda:pressureSensor.print())
-        self.btn_9.place(relx=0,rely=0.8,relheight=0.1,relwidth=buttonWidth)
-
-        lbl_1 = tk.Label(controlFrame, text='  Extend the linear actuator to the sensing chamber.', anchor='w')
-        lbl_1.place(relx=buttonWidth,rely=0,relheight=0.1,relwidth=(1-buttonWidth))
-        lbl_2 = tk.Label(controlFrame, text='  Retract the linear actuator to the clean chamber.', anchor='w')
-        lbl_2.place(relx=buttonWidth,rely=0.1,relheight=0.1,relwidth=(1-buttonWidth))
-        lbl_3 = tk.Label(controlFrame, text='  Reset the linear to the default (center) position.', anchor='w')
-        lbl_3.place(relx=buttonWidth,rely=0.2,relheight=0.1,relwidth=(1-buttonWidth))
-        lbl_4 = tk.Label(controlFrame, text='  Read the current value of the MOS (gas) sensor.', anchor='w')
-        lbl_4.place(relx=buttonWidth,rely=0.3,relheight=0.1,relwidth=(1-buttonWidth))
-        lbl_5 = tk.Label(controlFrame, text='  Read the current internal temperature of the device.', anchor='w')
-        lbl_5.place(relx=buttonWidth,rely=0.4,relheight=0.1,relwidth=(1-buttonWidth))
-        lbl_6 = tk.Label(controlFrame, text='   Toggle the inlet valve.', anchor='w')
-        lbl_6.place(relx=buttonWidth,rely=0.5,relheight=0.1,relwidth=(1-buttonWidth))
-        lbl_7 = tk.Label(controlFrame, text='   Toggle the outlet valve.', anchor='w')
-        lbl_7.place(relx=buttonWidth,rely=0.6,relheight=0.1,relwidth=(1-buttonWidth))
-        lbl_8 = tk.Label(controlFrame, text='  Toggle the pump.', anchor='w')
-        lbl_8.place(relx=buttonWidth,rely=0.7,relheight=0.1,relwidth=(1-buttonWidth))
-        lbl_9 = tk.Label(controlFrame, text='  Read the current Pressure.', anchor='w')
-        lbl_9.place(relx=buttonWidth,rely=0.8,relheight=0.1,relwidth=(1-buttonWidth))
+        self.btn_5 = tk.Button(controlFrame, text='Switch Valve 1', command=lambda:valve1.switch())
+        self.btn_5.place(relx=buttonWidth,rely=0,relheight=0.1,relwidth=buttonWidth)
+        self.btn_6 = tk.Button(controlFrame, text='Switch Valve 2', command=lambda:valve2.switch())
+        self.btn_6.place(relx=buttonWidth,rely=0.1,relheight=0.1,relwidth=buttonWidth)
+        self.btn_7 = tk.Button(controlFrame, text='Switch Valve 3', command=lambda:valve3.switch())
+        self.btn_7.place(relx=buttonWidth,rely=0.2,relheight=0.1,relwidth=buttonWidth)
+        self.btn_8 = tk.Button(controlFrame, text='Switch Valve 4', command=lambda:valve4.switch())
+        self.btn_8.place(relx=buttonWidth,rely=0.3,relheight=0.1,relwidth=buttonWidth)
+        self.btn_9 = tk.Button(controlFrame, text='Switch Valve 5', command=lambda:valve5.switch())
+        self.btn_9.place(relx=buttonWidth,rely=0.4,relheight=0.1,relwidth=buttonWidth)
+        self.btn_10 = tk.Button(controlFrame, text='Switch Valve 6', command=lambda:valve6.switch())
+        self.btn_10.place(relx=buttonWidth,rely=0.5,relheight=0.1,relwidth=buttonWidth)
 
 def suppress_buttons():
     app.frames[ManualControlPage].btn_1.config(state='disabled')
@@ -314,8 +324,9 @@ def suppress_buttons():
     app.frames[ManualControlPage].btn_7.config(state='disabled')
     app.frames[ManualControlPage].btn_8.config(state='disabled')
     app.frames[ManualControlPage].btn_9.config(state='disabled')
+    app.frames[ManualControlPage].btn_10.config(state='disabled')
     app.frames[HomePage].exitBtn.config(state='disabled')
-    app.frames[HomePage].shutdownBtn.config(state='disabled') #random
+    app.frames[HomePage].shutdownBtn.config(state='disabled')
 
 def release_buttons():
     app.frames[ManualControlPage].btn_1.config(state='normal')
@@ -327,100 +338,148 @@ def release_buttons():
     app.frames[ManualControlPage].btn_7.config(state='normal')
     app.frames[ManualControlPage].btn_8.config(state='normal')
     app.frames[ManualControlPage].btn_9.config(state='normal')
+    app.frames[ManualControlPage].btn_10.config(state='normal')
     app.frames[HomePage].exitBtn.config(state='normal')
     app.frames[HomePage].shutdownBtn.config(state='normal')
 
-# def createFolders(year, month, day, combinedVector):
-#     ##  Get the path for the folders by year, month and day
-#     year_path = '/home/pi/Documents/Tests/' + str(year)
-#     year_folder = Path(year_path)
-#     month_path = '/home/pi/Documents/Tests/' + str(year) + '/' + str(month)
-#     month_folder = Path(month_path)
-#     day_path = '/home/pi/Documents/Tests/' + str(year) + '/' + str(month) + '/' + str(day)
-#     day_folder = Path(day_path)
-#     ##  Start creating the folders, when the var complete == True, all the folders have been created
-#     complete = False
-#     while complete == False:
-#         if year_folder.is_dir():
-#             if month_folder.is_dir():
-#                 if day_folder.is_dir():
-#                     complete = True
-#                 else:
-#                     try:
-#                         print(day_path)
-#                         original_mask = os.umask(0x0000)
-#                         desired_permission = os.umask(0x0777)
-#                         os.makedirs(day_path, mode=0x0777)
-#                         complete = True
-#                     finally:
-#                         os.umask(desired_permission)
-#             else:
-#                 os.makedirs(month_path)
-#         else:
-#             os.makedirs(year_path)
-#     os.umask(original_mask)
-#     pass
-
 def purge_system():
 
-    if linearActuator.state != 'default':
-        linearActuator.default()
-        #app.frames[DataPage].stat_LA.set(linearActuator.state)
-
-    # Purge the sensing chamber.
-    messagebox.showinfo("Connect Pump", "Connect Pump into pump input and then press OK")
-    start_time = time.time() # Time at which the purging starts.
-
-    while time.time() < (start_time + sensing_chamber_purge_time) and continueTest == True:
-        if pump.state != True:
-#    pump.enable()
-            print("Automatic pump here")
-            #app.frames[DataPage].stat_pump.set(pump.state)
-        if inValve.state != True:
-            inValve.enable()
-            #app.frames[DataPage].stat_valve1.set(inValve.state)
-        if outValve.state != True:
-            outValve.enable()
-            #app.frames[DataPage].stat_valve2.set(outValve.state)
-
-    # Purge the clean chamber.
-    start_time = time.time() #Reset the time at which purging starts.
-    while time.time() < (start_time + clean_chamber_purge_time) and continueTest == True:
-        if pump.state != True:
-            print("Automatic pump here")
-            #pump.enable()
-            #app.frames[DataPage].stat_pump.set(pump.state)
-        if inValve.state != False:
-            inValve.disable()
-            #app.frames[DataPage].stat_valve2.set(inValve.state)
-        if outValve.state != False:
-            outValve.disable()
-            #app.frames[DataPage].stat_valve2.set(outValve.state)
-
-    pump.disable() # Turn off the pump after purging.
-    #app.frames[DataPage].stat_pump.set(pump.state)
-
+    start_time = time.time()
+    print("Purging System \n V1:N V2:N V3:N V4:N V5:Y V6:Y")
+    while time.time() < (start_time + chamber_purge_time) and continueTest == True:
+        if linearActuator.state != 'extended':
+            linearActuator.extend()
+        if valve1.state != False:
+            valve1.disable()
+        if valve2.state != False:
+            valve2.disable()
+        if valve3.state != False:
+            valve3.disable()
+        if valve4.state != False:
+            valve4.disable()
+        if valve5.state != True:
+            valve5.enable()
+        if valve6.state != True:
+            valve6.enable()
+    print("Done purging \n V1:N V2:N V3:N V4:N V5:N V6:N")
+    if linearActuator.state != 'retracted':
+        linearActuator.retract()
+    if valve1.state != False:
+        valve1.disable()
+    if valve2.state != False:
+        valve2.disable()
+    if valve3.state != False:
+        valve3.disable()
+    if valve4.state != False:
+        valve4.disable()
+    if valve5.state != False:
+        valve5.disable()
+    if valve6.state != False:
+        valve6.disable()
     pass
 
 def fill_chamber():
+    if linearActuator.state != 'retracted':
+        linearActuator.retract()
+    #########FILL METHANE############
+    start_time = time.time() #Methane Fill Line Clensing
+    print("Cleansing Methane Line \n V1:Y V2:N V3:Y V4:N V5:N V6:N")
+    while time.time() < (start_time + fill_line_clense_time) and continueTest == True:
+        if valve1.state != True:
+            valve1.enable()
+        if valve2.state != False:
+            valve2.disable()
+        if valve3.state != True:
+            valve3.enable()
+        if valve4.state != False:
+            valve4.disable()
+        if valve5.state != False:
+            valve5.disable()
+        if valve6.state != False:
+            valve6.disable()
+        pass
+    # Filling the chamber
+    start_time = time.time()
+    print("Filling Chamber with methane \n V1:Y V2:N V3:N V4:Y V5:N V6:Y")
+    while time.time() < (start_time + fill_methane_time[test_counter]) and continueTest == True:
+        if valve1.state != True:
+            valve1.enable()
+        if valve2.state != False:
+            valve2.disable()
+        if valve3.state != False:
+            valve3.disable()
+        if valve4.state != True:
+            valve4.enable()
+        if valve5.state != False:
+            valve5.disable()
+        if valve6.state != True:
+            valve6.enable()
+        pass
+    print("Done Filling Methane \n V1:N V2:N V3:N V4:N V5:N V6:N")
+    if valve1.state != False:
+        valve1.disable()
+    if valve2.state != False:
+        valve2.disable()
+    if valve3.state != False:
+        valve3.disable()
+    if valve4.state != False:
+        valve4.disable()
+    if valve5.state != False:
+        valve5.disable()
+    if valve6.state != False:
+        valve6.disable()
 
-    if linearActuator.state != 'extended':
-        linearActuator.extend()
-    if inValve.state != True:
-        inValve.enable()
-    if pump.state != False:
-        pump.disable()
-    print('Ready for Breath')
-    b_threshold_val = 5200
-#    while(pressureSensor.read() < b_threshold_val):
-#        print("BLOW HARDER: %d", pressureSensor.read())
-#    while(pressureSensor.read() > b_threshold_val):
-#        print("Collecting sample")
-#        # if inValve.state != True:
-#        #     inValve.enable()
-    if inValve.state != False:
-        inValve.disable()
-    messagebox.showinfo("External Valve","Please Close Exeternal Valve, then click Okay.")
+    ########END METHANE FILL########
+
+    #######FILL HYDROGEN ##############
+    start_time = time.time() #Methane Fill Line Clensing
+    print("Cleansing Hydrogen Line \n V1:N V2:Y V3:Y V4:N V5:N V6:N")
+    while time.time() < (start_time + fill_line_clense_time) and continueTest == True:
+        if valve1.state != False:
+            valve1.disable()
+        if valve2.state != True:
+            valve2.enable()
+        if valve3.state != True:
+            valve3.enable()
+        if valve4.state != False:
+            valve4.disable()
+        if valve5.state != False:
+            valve5.disable()
+        if valve6.state != False:
+            valve6.disable()
+        pass
+    # Filling the chamber
+    start_time = time.time()
+    print("Filling Chamber with Hydrogen \n V1:N V2:Y V3:N V4:Y V5:N V6:Y")
+    while time.time() < (start_time + fill_hydrogen_time[test_counter]) and continueTest == True:
+        if valve1.state != False:
+            valve1.disable()
+        if valve2.state != True:
+            valve2.enable()
+        if valve3.state != False:
+            valve3.disable()
+        if valve4.state != True:
+            valve4.enable()
+        if valve5.state != False:
+            valve5.disable()
+        if valve6.state != True:
+            valve6.enable()
+        pass
+    print("Done Filling Hydrogen \n V1:N V2:N V3:N V4:N V5:N V6:N")
+    if valve1.state != False:
+        valve1.disable()
+    if valve2.state != False:
+        valve2.disable()
+    if valve3.state != False:
+        valve3.disable()
+    if valve4.state != False:
+        valve4.disable()
+    if valve5.state != False:
+        valve5.disable()
+    if valve6.state != False:
+        valve6.disable()
+    pass
+
 
 def collect_data(xVector,yVector):
     start_time = time.time()  # Local value. Capture the time at which the test began. All time values can use start_time as a reference
@@ -431,17 +490,25 @@ def collect_data(xVector,yVector):
     sampling_time_index = 1
 
     # Initial state checks
-    if linearActuator.state != 'extended':
-        linearActuator.extend()
-    if inValve.state != False:
-        inValve.disable()
-    if outValve.state != False:
-        outValve.disable()
+    if linearActuator.state != 'retracted':
+        linearActuator.retract()
+    if valve1.state != False:
+        valve1.disable()
+    if valve2.state != False:
+        valve2.disable()
+    if valve3.state != False:
+        valve3.disable()
+    if valve4.state != False:
+        valve4.disable()
+    if valve5.state != False:
+        valve5.disable()
+    if valve6.state != False:
+        valve6.disable()
 
     print('Starting data capture.')
     while (time.time() < (start_time + duration_of_signal)) and (continueTest == True):  # While time is less than duration of logged file
         if (time.time() > (start_time + (sampling_time * sampling_time_index)) and (continueTest == True)):  # if time since last sample is more than the sampling time, take another sample
-            dataVector.append(all_sensors.read())  # Perform analog to digital function, reading voltage from first sensor channel
+            dataVector.append(mos.read())  # Perform analog to digital function, reading voltage from first sensor channel
             timeVector.append(time.time() - start_time)
             sampling_time_index += 1
 
@@ -461,15 +528,35 @@ def collect_data(xVector,yVector):
         else:
             if linearActuator.state != 'extended':
                 linearActuator.extend()
-    print('Data Capture Complete')
+
     combinedVector = np.column_stack((timeVector, dataVector))
 
-    filename = strftime("testsH/%a%-d%b%Y%H%M%S.csv",localtime())
+    # This section of code is used for generating the output file name. The file name will contain date/time of test, as well as concentration values present during test
+    filename = strftime("testsH2/%a%d%b%Y%H%M%S.csv",localtime())
     np.savetxt(filename,combinedVector, fmt='%.10f', delimiter=',')
+    print("Test ",test_counter + 1," File Saved")
 
 
-    print("Data Saved")
     pass
+
+def multi_test_run():
+    global num_tests
+    #num_tests = len(methane_injection_conc)
+    global test_counter
+    if test_counter < num_tests:
+        start_purge_thread()
+        pass
+    else:
+        global continueTest
+        continueTest = False #Set the test flag to false, stops testing.
+        release_buttons()
+        app.frames[DataPage].runBtn.tkraise()
+        app.frames[DataPage].status.set('  System ready.')
+        print(num_tests," Tests Completed")
+        end_testing()
+# def pressue_check_thread():
+#     if pressSensor.read() > press_threshold:
+
 
 def start_purge_thread():
     suppress_buttons()
@@ -481,7 +568,7 @@ def start_purge_thread():
     purge_thread = threading.Thread(target=purge_system)
     purge_thread.daemon = True
     app.frames[DataPage].status.set('  Purging chambers...')
-    app.frames[DataPage].progressbar.start((clean_chamber_purge_time+sensing_chamber_purge_time)*10)
+    #app.frames[DataPage].progressbar.start((chamber_purge_time)*10)
     purge_thread.start()
     app.after(20, check_purge_thread)
 
@@ -489,10 +576,9 @@ def check_purge_thread():
     if purge_thread.is_alive():
         app.after(20, check_purge_thread)
     else:
-        app.frames[DataPage].progressbar.stop()
+        #app.frames[DataPage].progressbar.stop()
         if continueTest ==True:
             start_fill_thread()
-            #app.frames[DataPage].contFill.tkraise()
 
 def start_fill_thread():
     suppress_buttons()
@@ -502,8 +588,8 @@ def start_fill_thread():
     continueTest = True
     fill_thread = threading.Thread(target=fill_chamber)
     fill_thread.daemon = True
-    app.frames[DataPage].status.set(' Collecting Breath Sample')
-    #app.frames[DataPage].progressbar.start((chamber_fill_time+chamber_force_fill_time)*10)
+    app.frames[DataPage].status.set('  Filling sample chamber...')
+    #app.frames[DataPage].progressbar.start(max(fill_methane_time,fill_hydrogen_time)*10)
     fill_thread.start()
     app.after(20, check_fill_thread)
 
@@ -511,7 +597,7 @@ def check_fill_thread():
     if fill_thread.is_alive():
         app.after(20, check_fill_thread)
     else:
-        app.frames[DataPage].progressbar.stop()
+        #app.frames[DataPage].progressbar.stop()
         if continueTest == True:
             start_data_thread()
 
@@ -523,7 +609,7 @@ def start_data_thread():
     data_thread = threading.Thread(target=collect_data,args=(timeVector,dataVector))
     data_thread.daemon = True
     app.frames[DataPage].status.set('  Capturing data...')
-    app.frames[DataPage].progressbar.start(duration_of_signal*10)
+    #app.frames[DataPage].progressbar.start(duration_of_signal*10)
     data_thread.start()
     app.after(20, check_data_thread)
 
@@ -531,22 +617,23 @@ def check_data_thread():
     if data_thread.is_alive():
         app.after(20, check_data_thread)
     else:
-        app.frames[DataPage].progressbar.stop()
+        #app.frames[DataPage].progressbar.stop()
         app.frames[DataPage].graph.update(timeVector,dataVector)
-        #app.frames[DataPage].naturalGasLabel.config(bg=warning_color)
-        release_buttons()
-        app.frames[DataPage].runBtn.tkraise()
-        app.frames[DataPage].status.set('  System ready.')
-
+        # release_buttons()
+        # app.frames[DataPage].runBtn.tkraise()
+        # app.frames[DataPage].status.set('  System ready.')
+        global test_counter
+        test_counter += 1
+        multi_test_run()
 def end_testing():
     if purge_thread.is_alive() or fill_thread.is_alive() or data_thread.is_alive():
         global continueTest
         continueTest = False #Set the test flag to false, stops testing.
-        #release_buttons()
+        release_buttons()
         app.frames[DataPage].runBtn.tkraise()
         app.frames[DataPage].status.set('  System ready.')
 try:
-    app = CannibixHHGUI()
+    app = HetekGUI()
     app.mainloop()
 except keyboardinterrupt:
     GPIO.cleanup()

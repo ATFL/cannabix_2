@@ -245,10 +245,11 @@ class DataPage(tk.Frame):
         self.naturalGasLabel = tk.Label(responseFrame, text = 'THC\n Detected', relief='groove', borderwidth=2, anchor='center')
         self.naturalGasLabel.place(relx=0,rely=0,relheight=0.7,relwidth=1)
         self.orig_color = self.naturalGasLabel.cget("background") # Store the original color of the label.
+
         self.filenamelbl = tk.Label(responseFrame,text='Filename (Optional)',anchor='w')
         self.filenamelbl.place(relx=0,rely=0.7,relheight = 0.5,relwidth = 1)
         self.filename_add = tk.StringVar()
-        self.filenamefiller = tk.Entry(responseFrame,state=Enabled,textvariable=filename_add)
+        self.filenamefiller = tk.Entry(responseFrame,textvariable=filename_add)
         self.filenamefiller.place(relx=0,rely=.8,relwidth=1)
         self.filenamefiller.set('')
 class ManualControlPage(tk.Frame):

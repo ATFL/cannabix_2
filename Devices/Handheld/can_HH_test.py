@@ -248,7 +248,7 @@ class DataPage(tk.Frame):
 
         self.filenamelbl = tk.Label(responseFrame,text='Filename (Optional)',anchor='w')
         self.filenamelbl.place(relx=0,rely=0.7,relheight = 0.5,relwidth = 1)
-        self.filename_add = tk.StringVar()
+        filename_add = tk.StringVar()
         self.filenamefiller = tk.Entry(responseFrame,textvariable=filename_add)
         self.filenamefiller.place(relx=0,rely=.8,relwidth=1)
         self.filenamefiller.set('')

@@ -464,7 +464,7 @@ def collect_data(xVector,yVector):
     print('Data Capture Complete')
     combinedVector = np.column_stack((timeVector, dataVector))
 
-    filename = strftime("testsH/%a%-d%b%Y%H%M%S.csv",gmtime())
+    filename = strftime("testsH/%a%-d%b%Y%H%M%S.csv",localtime())
     np.savetxt(filename,combinedVector, fmt='%.10f', delimiter=',')
 
 

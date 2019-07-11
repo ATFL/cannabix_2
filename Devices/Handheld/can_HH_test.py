@@ -46,16 +46,19 @@ adc = ADS.ADS1115(0x48)
 adc2 = ADS.ADS1115(0x49)
 # MOS Sensor
 
+#ADC2
 sensor1 = MOS(adc2, 0)
 sensor2 = MOS(adc2, 1)
 sensor3 = MOS(adc2, 2)
 sensor4 = MOS(adc2, 3)
 
+#ADC1
 sensor5 = MOS(adc, 0)
 sensor6 = MOS(adc, 1)
 sensor7 = MOS(adc, 2)
 sensor8 = MOS(adc, 3)
 
+#MOS SENSORS
 all_sensors = all_sensors(sensor1,sensor2,sensor3,sensor4)
 # all_sensors2 = all_sensors(sensor5,sensor6,sensor7,sensor8)
 # Temperature sensor
@@ -180,7 +183,12 @@ class DataPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         control_btn = tk.Button(controller.tabBar, text='Data', bg=tabBar_color, activebackground=tabBarActive_color, bd=0, command=lambda: controller.show_frame(DataPage))
-        control_btn.pack(side='left', expand= True, fill = 'both')
+        control_btn.pack(side='left', expand= True, fill = 'both')#    while(pressureSensor.read() < b_threshold_val):
+#        print("BLOW HARDER: %d", pressureSensor.read())
+#    while(pressureSensor.read() > b_threshold_val):
+#        print("Collecting sample")
+#        # if inValve.state != True:
+#        #     inValve.enable()
 
         self.graph = AutoLiveGraph(self, timeVector, dataVector)
         self.graph.place(relx=0,rely=0,relheight=0.9,relwidth=0.8)
@@ -209,44 +217,37 @@ class DataPage(tk.Frame):
         self.runBtn.grid(row=0, column=0, sticky="nsew")
 
 
-        statusFrame = tk.LabelFrame(self, text ='Status')
-        statusFrame.place(relx=0.8,rely=0.3,relheight=0.6,relwidth=0.2)
+        self.statusFrame = tk.LabelFrame(self, text ='Status')
+        self.statusFrame.place(relx=0.8,rely=0.3,relheight=0.6,relwidth=0.2)
 
-        stat_pump_lbl = tk.Label(statusFrame, text='PUMP: ', anchor='w')
-        stat_pump_lbl.place(relx=0,rely=0,relheight=0.1,relwidth=(1-0.4))
-        stat_Valve1_lbl = tk.Label(statusFrame, text= 'Valve 1: ', anchor='w')
-        stat_Valve1_lbl.place(relx=0,rely=0.1,relheight=0.1,relwidth=(1-0.4))
-        stat_Valve2_lbl = tk.Label(statusFrame, text='Valve 2: ', anchor='w')
-        stat_Valve2_lbl.place(relx=0,rely=0.2,relheight=0.1,relwidth=(1-0.4))
-        stat_LA_lbl = tk.Label(statusFrame, text='LA: ', anchor='w')
-        stat_LA_lbl.place(relx=0,rely=0.3,relheight=0.1,relwidth=(1-0.4))
+        self.stat_pump_lbl = tk.Label(statusFrame, text='PUMP: ', anchor='w')
+        self.stat_pump_lbl.place(relx=0,rely=0,relheight=0.1,relwidth=(1-0.4))
+        self.stat_Valve1_lbl = tk.Label(statusFrame, text= 'Valve 1: ', anchor='w')
+        self.stat_Valve1_lbl.place(relx=0,rely=0.1,relheight=0.1,relwidth=(1-0.4))
+        self.stat_Valve2_lbl = tk.Label(statusFrame, text='Valve 2: ', anchor='w')
+        self.stat_Valve2_lbl.place(relx=0,rely=0.2,relheight=0.1,relwidth=(1-0.4))
+        self.stat_LA_lbl = tk.Label(statusFrame, text='LA: ', anchor='w')
+        self.stat_LA_lbl.place(relx=0,rely=0.3,relheight=0.1,relwidth=(1-0.4))
 
-        stat_pump = tk.Label(statusFrame, text=pump.state, anchor='w')
-        stat_pump.place(relx=.4,rely=0,relheight=0.1,relwidth=(1-0.4))
-        stat_Valve1 = tk.Label(statusFrame, text=inValve.state, anchor='w')
-        stat_Valve1.place(relx=.4,rely=0.1,relheight=0.1,relwidth=(1-0.4))
-        stat_Valve2 = tk.Label(statusFrame, text=outValve.state, anchor='w')
-        stat_Valve2.place(relx=.4,rely=0.2,relheight=0.1,relwidth=(1-0.4))
-        stat_LA = tk.Label(statusFrame, text=linearActuator.state, anchor='w')
-        stat_LA.place(relx=.2,rely=0.3,relheight=0.1,relwidth=(1-0.4))
+        self.stat_pump = tk.Label(statusFrame, text=pump.state, anchor='w')
+        self.stat_pump.place(relx=.4,rely=0,relheight=0.1,relwidth=(1-0.4))
+        self.stat_Valve1 = tk.Label(statusFrame, text=inValve.state, anchor='w')
+        self.stat_Valve1.place(relx=.4,rely=0.1,relheight=0.1,relwidth=(1-0.4))
+        self.stat_Valve2 = tk.Label(statusFrame, text=outValve.state, anchor='w')
+        self.stat_Valve2.place(relx=.4,rely=0.2,relheight=0.1,relwidth=(1-0.4))
+        self.stat_LA = tk.Label(statusFrame, text=linearActuator.state, anchor='w')
+        self.stat_LA.place(relx=.2,rely=0.3,relheight=0.1,relwidth=(1-0.4))
 
 
 
-        responseFrame = tk.Frame(self)
-        responseFrame.place(relx=0.8,rely=0,relheight=0.3,relwidth=0.2)
+        self.responseFrame = tk.Frame(self)
+        self.responseFrame.place(relx=0.8,rely=0,relheight=0.3,relwidth=0.2)
         self.naturalGasLabel = tk.Label(responseFrame, text = 'THC\n Detected', relief='groove', borderwidth=2, anchor='center')
         self.naturalGasLabel.place(relx=0,rely=0,relheight=0.7,relwidth=1)
         self.orig_color = self.naturalGasLabel.cget("background") # Store the original color of the label.
 
-        # ppmDisplay = tk.Frame(responseFrame, relief='groove', borderwidth=2)
-        # ppmDisplay.place(relx=0,rely=0.7,relheight=0.3,relwidth=1)
-        # ppmLabel = tk.Label(ppmDisplay, text = 'PPM:')
-        # ppmLabel.place(relx=0,rely=0,relheight=1,relwidth=0.3)
-        # self.ppmVar = tk.IntVar()
-        # self.ppmVar.set(0)
-        # ppmDisplay = tk.Label(ppmDisplay, textvariable = self.ppmVar, anchor='w')
-        # ppmDisplay.place(relx=0.3,rely=0,relheight=1,relwidth=0.7)
-
+        self.filenamefiller = tk.Entry(self)
+        
 class ManualControlPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -330,42 +331,11 @@ def release_buttons():
     app.frames[HomePage].exitBtn.config(state='normal')
     app.frames[HomePage].shutdownBtn.config(state='normal')
 
-# def createFolders(year, month, day, combinedVector):
-#     ##  Get the path for the folders by year, month and day
-#     year_path = '/home/pi/Documents/Tests/' + str(year)
-#     year_folder = Path(year_path)
-#     month_path = '/home/pi/Documents/Tests/' + str(year) + '/' + str(month)
-#     month_folder = Path(month_path)
-#     day_path = '/home/pi/Documents/Tests/' + str(year) + '/' + str(month) + '/' + str(day)
-#     day_folder = Path(day_path)
-#     ##  Start creating the folders, when the var complete == True, all the folders have been created
-#     complete = False
-#     while complete == False:
-#         if year_folder.is_dir():
-#             if month_folder.is_dir():
-#                 if day_folder.is_dir():
-#                     complete = True
-#                 else:
-#                     try:
-#                         print(day_path)
-#                         original_mask = os.umask(0x0000)
-#                         desired_permission = os.umask(0x0777)
-#                         os.makedirs(day_path, mode=0x0777)
-#                         complete = True
-#                     finally:
-#                         os.umask(desired_permission)
-#             else:
-#                 os.makedirs(month_path)
-#         else:
-#             os.makedirs(year_path)
-#     os.umask(original_mask)
-#     pass
-
 def purge_system():
 
     if linearActuator.state != 'default':
         linearActuator.default()
-        #app.frames[DataPage].stat_LA.set(linearActuator.state)
+
 
     # Purge the sensing chamber.
     messagebox.showinfo("Connect Pump", "Connect Pump into pump input and then press OK")
@@ -388,17 +358,12 @@ def purge_system():
     while time.time() < (start_time + clean_chamber_purge_time) and continueTest == True:
         if pump.state != True:
             print("Automatic pump here")
-            #pump.enable()
-            #app.frames[DataPage].stat_pump.set(pump.state)
         if inValve.state != False:
             inValve.disable()
             #app.frames[DataPage].stat_valve2.set(inValve.state)
         if outValve.state != False:
             outValve.disable()
             #app.frames[DataPage].stat_valve2.set(outValve.state)
-
-    pump.disable() # Turn off the pump after purging.
-    #app.frames[DataPage].stat_pump.set(pump.state)
 
     pass
 
@@ -412,12 +377,6 @@ def fill_chamber():
         pump.disable()
     print('Ready for Breath')
     b_threshold_val = 5200
-#    while(pressureSensor.read() < b_threshold_val):
-#        print("BLOW HARDER: %d", pressureSensor.read())
-#    while(pressureSensor.read() > b_threshold_val):
-#        print("Collecting sample")
-#        # if inValve.state != True:
-#        #     inValve.enable()
     if inValve.state != False:
         inValve.disable()
     messagebox.showinfo("External Valve","Please Close Exeternal Valve, then click Okay.")
@@ -542,7 +501,7 @@ def end_testing():
     if purge_thread.is_alive() or fill_thread.is_alive() or data_thread.is_alive():
         global continueTest
         continueTest = False #Set the test flag to false, stops testing.
-        #release_buttons()
+        release_buttons()
         app.frames[DataPage].runBtn.tkraise()
         app.frames[DataPage].status.set('  System ready.')
 try:

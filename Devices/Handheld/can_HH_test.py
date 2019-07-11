@@ -217,8 +217,8 @@ class DataPage(tk.Frame):
         self.runBtn.grid(row=0, column=0, sticky="nsew")
 
 
-        self.statusFrame = tk.LabelFrame(self, text ='Status')
-        self.statusFrame.place(relx=0.8,rely=0.3,relheight=0.6,relwidth=0.2)
+        statusFrame = tk.LabelFrame(self, text ='Status')
+        statusFrame.place(relx=0.8,rely=0.3,relheight=0.6,relwidth=0.2)
 
         self.stat_pump_lbl = tk.Label(statusFrame, text='PUMP: ', anchor='w')
         self.stat_pump_lbl.place(relx=0,rely=0,relheight=0.1,relwidth=(1-0.4))
@@ -247,7 +247,7 @@ class DataPage(tk.Frame):
         self.orig_color = self.naturalGasLabel.cget("background") # Store the original color of the label.
 
         self.filenamefiller = tk.Entry(self)
-        
+
 class ManualControlPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)

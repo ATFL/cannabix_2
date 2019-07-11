@@ -461,7 +461,7 @@ def collect_data(xVector,yVector):
 
     np.savetxt(filename,combinedVector, fmt='%.10f', delimiter=',')
     app.frames[DataPage].filenamefiller.delete(0,END)
-
+    app.frames[DataPage].filenamefiller.insert(0,'')
     print("Data Saved")
     pass
 

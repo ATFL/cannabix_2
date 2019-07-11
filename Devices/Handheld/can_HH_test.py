@@ -246,8 +246,8 @@ class DataPage(tk.Frame):
         self.naturalGasLabel.place(relx=0,rely=0,relheight=0.7,relwidth=1)
         self.orig_color = self.naturalGasLabel.cget("background") # Store the original color of the label.
 
-        self.filenamefiller = tk.Entry(self)
-
+        self.filenamefiller = tk.Entry(responseFrame)
+        self.filenamefiller.place(relx=0,rely=.8,relwidth=1)
 class ManualControlPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)

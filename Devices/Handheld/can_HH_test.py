@@ -262,8 +262,8 @@ class DataPage(tk.Frame):
 
         self.filenamelbl = tk.Label(responseFrame,text='Filename (Optional)',anchor='w')
         self.filenamelbl.place(relx=0,rely=0.7,relheight = 0.5,relwidth = 1)
-        self.filename_add = tk.StringVar()
-        self.filenamefiller = tk.Entry(responseFrame,textvariable=filename_add)
+        #self.filename_add = tk.StringVar()
+        self.filenamefiller = tk.Entry(responseFrame)
         self.filenamefiller.place(relx=0,rely=.8,relwidth=1)
         #self.filenamefiller.set('')
 class ManualControlPage(tk.Frame):
@@ -445,7 +445,7 @@ def collect_data(xVector,yVector):
     ### OPTION 1: STRING IS ADDITION TO FILENAME BELOW
     #fpath = "testsH/" #this is where files are saved
     fpath = "testing_site" #this is a testing area
-    f1 = app.frames[DataPage].filename_add.get()
+    f1 = app.frames[DataPage].filenamefiller.get()
     f2 = strftime("%a%-d%b%Y%H%M%S",localtime())
     fsuffix = ".csv"
     filename = fpath+f2+f1+fsuffix

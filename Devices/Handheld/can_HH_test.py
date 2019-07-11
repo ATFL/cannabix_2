@@ -240,8 +240,8 @@ class DataPage(tk.Frame):
 
 
 
-        self.responseFrame = tk.Frame(self)
-        self.responseFrame.place(relx=0.8,rely=0,relheight=0.3,relwidth=0.2)
+        responseFrame = tk.Frame(self)
+        responseFrame.place(relx=0.8,rely=0,relheight=0.3,relwidth=0.2)
         self.naturalGasLabel = tk.Label(responseFrame, text = 'THC\n Detected', relief='groove', borderwidth=2, anchor='center')
         self.naturalGasLabel.place(relx=0,rely=0,relheight=0.7,relwidth=1)
         self.orig_color = self.naturalGasLabel.cget("background") # Store the original color of the label.

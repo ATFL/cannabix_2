@@ -442,22 +442,19 @@ def collect_data(xVector,yVector):
     combinedVector = np.column_stack((timeVector, dataVector))
 
     #########NAMING THE SAVED FILE##########
-    ### OPTION 1: STRING IS ADDITION TO FILENAME BELOW
     #fpath = "testsH/" #this is where files are saved
     fpath = "testing_site/" #this is a testing area
     f1 = app.frames[DataPage].filenamefiller.get()
     f2 = strftime("%a%-d%b%Y%H%M%S",localtime())
     fsuffix = ".csv"
-    filename = fpath+f2+f1+fsuffix
+
+    ### OPTION 1: STRING IS ADDITION TO FILENAME BELOW
+    #filename = fpath+f2+f1+fsuffix
     ### OPTION 2: STRING IS REPLACEMENT FOR FILENAME
-    # fpath = "testsH/"
-    # f1 = filename_add.get()
-    # f2 = strftime("%a%-d%b%Y%H%M%S",localtime())
-    # fsuffix = ".csv"
-    # if f1 != '':
-    #     filename = fpath+f1+fsuffix
-    # else:
-    #     filename = fpath+f2+fsuffix
+    if f1 != '':
+        filename = fpath+f1+fsuffix
+    else:
+        filename = fpath+f2+fsuffix
 
     np.savetxt(filename,combinedVector, fmt='%.10f', delimiter=',')
     app.frames[DataPage].filenamefiller.delete(0,END)

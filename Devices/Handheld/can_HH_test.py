@@ -443,7 +443,8 @@ def collect_data(xVector,yVector):
 
     #########NAMING THE SAVED FILE##########
     ### OPTION 1: STRING IS ADDITION TO FILENAME BELOW
-    fpath = "testsH/"
+    #fpath = "testsH/" #this is where files are saved
+    fpath = "testing_site" #this is a testing area
     f1 = filename_add.get()
     f2 = strftime("%a%-d%b%Y%H%M%S",localtime())
     fsuffix = ".csv"

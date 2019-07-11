@@ -251,7 +251,7 @@ class DataPage(tk.Frame):
         filename_add = tk.StringVar()
         self.filenamefiller = tk.Entry(responseFrame,textvariable=filename_add)
         self.filenamefiller.place(relx=0,rely=.8,relwidth=1)
-        self.filenamefiller.set('')
+        #self.filenamefiller.set('')
 class ManualControlPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)

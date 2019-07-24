@@ -242,7 +242,7 @@ class DataPage(tk.Frame):
         self.neg_resp = Radiobutton(statusFrame,text='Negative',variable = test_type,value=0)
         self.neg_resp.place(relx = 0, rely = 0.1, relwidth = 1,relheight = .1)
         self.pos_resp = Radiobutton(statusFrame,text='Positive',variable = test_type,value=1)
-        self.pos.resp.place(relx = 0, rely = 0.2,relwidth = 1, relheight = .1)
+        self.pos_resp.place(relx = 0, rely = 0.2,relwidth = 1, relheight = .1)
 
         responseFrame = tk.Frame(self)
         responseFrame.place(relx=0.8,rely=0,relheight=0.3,relwidth=0.2)

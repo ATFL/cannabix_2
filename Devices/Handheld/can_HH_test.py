@@ -236,9 +236,9 @@ class DataPage(tk.Frame):
 
         statusFrame = tk.LabelFrame(self, text ='Status')
         statusFrame.place(relx=0.8,rely=0.3,relheight=0.6,relwidth=0.2)
-        def callback1():
+        def callback1(*args):
             print("Test_Type was read, value is ",test_type.get())
-        def callback2():
+        def callback2(*args):
             print("Test_type was changed to ", test_type.get())
 
         test_type = IntVar()

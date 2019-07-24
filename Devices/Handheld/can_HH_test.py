@@ -365,7 +365,7 @@ def purge_system():
     while time.time() < (start_time + sensing_chamber_purge_time) and continueTest == True:
         if pump.state != True:
 #    pump.enable()
-            print("Automatic pump here")
+            # print("Automatic pump here")
             #app.frames[DataPage].stat_pump.set(pump.state)
         if inValve.state != True:
             inValve.enable()
@@ -378,7 +378,7 @@ def purge_system():
     start_time = time.time() #Reset the time at which purging starts.
     while time.time() < (start_time + clean_chamber_purge_time) and continueTest == True:
         if pump.state != True:
-            print("Automatic pump here")
+            # print("Automatic pump here")
         if inValve.state != False:
             inValve.disable()
             #app.frames[DataPage].stat_valve2.set(inValve.state)

@@ -445,7 +445,7 @@ def collect_data(xVector,yVector,zVector):
                 linearActuator.extend()
     print('Data Capture Complete')
     arr_shape = len(timeVector)
-    test_type_Val = app.frames[DataPage].test_type.get()
+    test_type_Val = test_type.get()
     test_type_Vector = np.full(arr_shape,test_type_Val)
     combinedVector = np.column_stack((timeVector, dataVector,test_type_Vector))
 

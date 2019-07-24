@@ -545,7 +545,7 @@ def end_testing():
 try:
     app = CannibixHHGUI()
     app.mainloop()
-except keyboardinterrupt:
+except KeyboardInterrupt:
     GPIO.cleanup()
 finally:
     GPIO.cleanup()

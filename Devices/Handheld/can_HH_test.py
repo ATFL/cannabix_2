@@ -266,6 +266,11 @@ class DataPage(tk.Frame):
         self.filenamefiller = tk.Entry(responseFrame)
         self.filenamefiller.place(relx=0,rely=.8,relwidth=1)
         #self.filenamefiller.set('')
+
+        self.neg_resp = RadioButton(responseFrame,text='Negative',variable = test_type,value=0)
+        self.neg_resp.place(relx = 0, rely = 0.1, relwidth = 1,relheight = .1)
+        self.pos_resp = RadioButton(responseFrame,text='Positive',variable = test_type,value=1)
+        self.pos.resp.place(relx = 0, rely = 0.2,relwidth = 1, relheight = .1)
 class ManualControlPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)

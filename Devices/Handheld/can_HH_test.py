@@ -243,7 +243,8 @@ class DataPage(tk.Frame):
 
         test_type = IntVar()
         test_type.set(0)
-        test_type.trace('r',callback1())
+        test_type.trace('r',callback1)
+        test_type.trace('w',callback2)
 
         self.neg_resp = Radiobutton(statusFrame,text='Negative',variable = test_type,value=0)
         self.neg_resp.place(relx = 0, rely = 0.1, relwidth = 1,relheight = .1)

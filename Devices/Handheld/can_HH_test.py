@@ -241,7 +241,7 @@ class DataPage(tk.Frame):
             print("Test_Type was read, value is ",test_type.get())
         def callback2(*args):
             print("Test_type was changed to ", test_type.get())
-
+        global test_type
         test_type = IntVar()
         test_type.set(0)
         test_type.trace('r',callback1)
@@ -444,6 +444,7 @@ def collect_data(xVector,yVector,zVector):
             if linearActuator.state != 'extended':
                 linearActuator.extend()
     print('Data Capture Complete')
+    global test_type
     arr_shape = len(timeVector)
     test_type_Val = test_type.get()
     test_type_Vector = np.full(arr_shape,test_type_Val)

@@ -98,7 +98,8 @@ sensing_retract_time =50# 50 # normally 60, time allowed before sensor is retrac
 duration_of_signal = 200#200 # normally 150, time allowed for data acquisition per test run
 
 
-test_type = 0
+test_type = IntVar()
+test_type.set(0)
 ##############TESTING TIMING###################################
 # clean_chamber_purge_time = 1 # normally 30s
 # sensing_chamber_purge_time = 1 # normally 60s
@@ -237,12 +238,13 @@ class DataPage(tk.Frame):
         statusFrame = tk.LabelFrame(self, text ='Status')
         statusFrame.place(relx=0.8,rely=0.3,relheight=0.6,relwidth=0.2)
 
-
-
         self.neg_resp = Radiobutton(statusFrame,text='Negative',variable = test_type,value=0)
         self.neg_resp.place(relx = 0, rely = 0.1, relwidth = 1,relheight = .1)
         self.pos_resp = Radiobutton(statusFrame,text='Positive',variable = test_type,value=1)
         self.pos_resp.place(relx = 0, rely = 0.2,relwidth = 1, relheight = .1)
+        self.other_resp = Radiobutton(statusFrame,text='Other',variable = test_type,value = 2)
+        self.other_resp.place(relx = 0, rely = 0.3, relwidth = 1, relheight = .1)
+
 
         responseFrame = tk.Frame(self)
         responseFrame.place(relx=0.8,rely=0,relheight=0.3,relwidth=0.2)

@@ -42,31 +42,31 @@ pinLA = 8
 pinEnable = 10
 linearActuator = LinearActuator(pinLA, pinEnable)
 # Analog-Digital Converter
-adc = ADS.ADS1115(0x48)
-adc2 = ADS.ADS1115(0x49)
-# MOS Sensor
-
-#ADC2
-sensor1 = MOS(adc2, 0)
-sensor2 = MOS(adc2, 1)
-sensor3 = MOS(adc2, 2)
-sensor4 = MOS(adc2, 3)
-
-#ADC1
-sensor5 = MOS(adc, 0)
-sensor6 = MOS(adc, 1)
-sensor7 = MOS(adc, 2)
-sensor8 = MOS(adc, 3)
+# adc = ADS.ADS1115(0x48)
+# adc2 = ADS.ADS1115(0x49)
+# # MOS Sensor
+#
+# #ADC2
+# sensor1 = MOS(adc2, 0)
+# sensor2 = MOS(adc2, 1)
+# sensor3 = MOS(adc2, 2)
+# sensor4 = MOS(adc2, 3)
+#
+# #ADC1
+# sensor5 = MOS(adc, 0)
+# sensor6 = MOS(adc, 1)
+# sensor7 = MOS(adc, 2)
+# sensor8 = MOS(adc, 3)
 
 #MOS SENSORS
-all_sensors = all_sensors(sensor1,sensor2,sensor3,sensor4)
-# all_sensors2 = all_sensors(sensor5,sensor6,sensor7,sensor8)
-# Temperature sensor
-Temp_adc_channel = 1
-temperatureSensor = TemperatureSensor(adc, Temp_adc_channel)
-#Pressure Sensor
-Press_adc_channel = 0
-pressureSensor = PressureSensor(adc,Press_adc_channel)
+# all_sensors = all_sensors(sensor1,sensor2,sensor3,sensor4)
+# # all_sensors2 = all_sensors(sensor5,sensor6,sensor7,sensor8)
+# # Temperature sensor
+# Temp_adc_channel = 1
+# temperatureSensor = TemperatureSensor(adc, Temp_adc_channel)
+# #Pressure Sensor
+# Press_adc_channel = 0
+# pressureSensor = PressureSensor(adc,Press_adc_channel)
 # Valves
 pinInValve = 8
 inValve = Valve('Inlet Valve', pinInValve)
@@ -291,9 +291,9 @@ class ManualControlPage(tk.Frame):
         self.btn_2.place(relx=0,rely=0.1,relheight=0.1,relwidth=buttonWidth)
         self.btn_3 = tk.Button(controlFrame, text='Default Linear Actuator', command=lambda:linearActuator.default())#,app.frames[DataPage].stat_LA.set(linearActuator.state)])
         self.btn_3.place(relx=0,rely=0.2,relheight=0.1,relwidth=buttonWidth)
-        self.btn_4 = tk.Button(controlFrame, text='Read Sensors', command=lambda:all_sensors.print())
+        self.btn_4 = tk.Button(controlFrame, text='Read Sensors', command=print("hello"))
         self.btn_4.place(relx=0,rely=0.3,relheight=0.1,relwidth=buttonWidth)
-        self.btn_5 = tk.Button(controlFrame, text='Read Temperature Sensor', command=lambda:temperatureSensor.print())
+        self.btn_5 = tk.Button(controlFrame, text='Read Temperature Sensor', command=print("hello"))
         self.btn_5.place(relx=0,rely=0.4,relheight=0.1,relwidth=buttonWidth)
         self.btn_6 = tk.Button(controlFrame, text='Switch Valve 1', command=lambda:valve1.switch())#,app.frames[DataPage].stat_valve1.set(inValve.state)])
         self.btn_6.place(relx=0,rely=0.5,relheight=0.1,relwidth=buttonWidth)
@@ -301,7 +301,7 @@ class ManualControlPage(tk.Frame):
         self.btn_7.place(relx=0,rely=0.6,relheight=0.1,relwidth=buttonWidth)
         self.btn_8 = tk.Button(controlFrame, text='Switch Pump', command=lambda:pump.switch())#,app.frames[DataPage].stat_pump.set(pump.state)])
         self.btn_8.place(relx=0,rely=0.7,relheight=0.1,relwidth=buttonWidth)
-        self.btn_9 = tk.Button(controlFrame, text='Read Pressure', command=lambda:pressureSensor.print())
+        self.btn_9 = tk.Button(controlFrame, text='Read Pressure', command=print("hello"))
         self.btn_9.place(relx=0,rely=0.8,relheight=0.1,relwidth=buttonWidth)
 
         lbl_1 = tk.Label(controlFrame, text='  Extend the linear actuator to the sensing chamber.', anchor='w')
@@ -418,7 +418,7 @@ def collect_data(xVector,yVector):
     print('Starting data capture.')
     while (time.time() < (start_time + duration_of_signal)) and (continueTest == True):  # While time is less than duration of logged file
         if (time.time() > (start_time + (sampling_time * sampling_time_index)) and (continueTest == True)):  # if time since last sample is more than the sampling time, take another sample
-            dataVector.append(all_sensors.read())  # Perform analog to digital function, reading voltage from first sensor channel
+            dataVector.append(1)  # Perform analog to digital function, reading voltage from first sensor channel
             timeVector.append(time.time() - start_time)
             sampling_time_index += 1
 
@@ -442,8 +442,8 @@ def collect_data(xVector,yVector):
     combinedVector = np.column_stack((timeVector, dataVector))
 
     #########NAMING THE SAVED FILE##########
-    fpath = "testsH/" #this is where files are saved
-    # fpath = "testing_site/" #this is a testing area
+    #fpath = "testsH/" #this is where files are saved
+    fpath = "testing_site/" #this is a testing area
     f1 = app.frames[DataPage].filenamefiller.get()
     f2 = strftime("%a%-d%b%Y%H%M%S",localtime())
     fsuffix = ".csv"

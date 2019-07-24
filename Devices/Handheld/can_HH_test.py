@@ -11,6 +11,7 @@ import threading
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+from tkinter import *
 # -----> Matplotlib Imports <------
 import numpy as np
 import matplotlib.pyplot as plt

@@ -84,38 +84,39 @@ valve2 = Valve('Valve 2', pinValve2)
 pinPump = 11
 pump = Pump(pinPump)
 #################### System Variables ####################
-# Purging Variables
-clean_chamber_purge_time = 15 # normally 30s
-sensing_chamber_purge_time = 15 # normally 60s
-# Filling Variables
-chamber_fill_time = 1 # normally 45, fill the sensing chamber with the outlet valve open.
-chamber_force_fill_time = 1 # normally 1, fill the sensing chamber without an outlet.
-
-# Testing Variables
-sampling_time = 0.1 # time between samples taken, determines sampling frequency
-sensing_delay_time = 5 # normall 10, time delay after beginning data acquisition till when the sensor is exposed to sample
-sensing_retract_time =50# 50 # normally 60, time allowed before sensor is retracted, no longer exposed to sample
-duration_of_signal = 200#200 # normally 150, time allowed for data acquisition per test run
-
-
-
-##############TESTING TIMING###################################
-# clean_chamber_purge_time = 1 # normally 30s
-# sensing_chamber_purge_time = 1 # normally 60s
+# # Purging Variables
+# clean_chamber_purge_time = 15 # normally 30s
+# sensing_chamber_purge_time = 15 # normally 60s
 # # Filling Variables
 # chamber_fill_time = 1 # normally 45, fill the sensing chamber with the outlet valve open.
 # chamber_force_fill_time = 1 # normally 1, fill the sensing chamber without an outlet.
 #
 # # Testing Variables
 # sampling_time = 0.1 # time between samples taken, determines sampling frequency
-# sensing_delay_time = 1 # normall 10, time delay after beginning data acquisition till when the sensor is exposed to sample
-# sensing_retract_time =2# 50 # normally 60, time allowed before sensor is retracted, no longer exposed to sample
-# duration_of_signal = 5
+# sensing_delay_time = 5 # normall 10, time delay after beginning data acquisition till when the sensor is exposed to sample
+# sensing_retract_time =50# 50 # normally 60, time allowed before sensor is retracted, no longer exposed to sample
+# duration_of_signal = 200#200 # normally 150, time allowed for data acquisition per test run
+
+
+
+##############TESTING TIMING###################################
+clean_chamber_purge_time = 1 # normally 30s
+sensing_chamber_purge_time = 1 # normally 60s
+# Filling Variables
+chamber_fill_time = 1 # normally 45, fill the sensing chamber with the outlet valve open.
+chamber_force_fill_time = 1 # normally 1, fill the sensing chamber without an outlet.
+
+# Testing Variables
+sampling_time = 0.1 # time between samples taken, determines sampling frequency
+sensing_delay_time = 1 # normall 10, time delay after beginning data acquisition till when the sensor is exposed to sample
+sensing_retract_time =2# 50 # normally 60, time allowed before sensor is retracted, no longer exposed to sample
+duration_of_signal = 5
 ##################################################
 #################### Data Array ####################
 # DO NOT TOUCH # -teehee touched
 dataVector = []
 timeVector = []
+test_type_Vector = []
 #################### Color Settings ####################
 warning_color = '#FFC300'
 tabBar_color = '#85929E'
@@ -401,12 +402,14 @@ def fill_chamber():
         inValve.disable()
     messagebox.showinfo("External Valve","Please Close Exeternal Valve, then click Okay.")
 
-def collect_data(xVector,yVector):
+def collect_data(xVector,yVector,zVector):
     start_time = time.time()  # Local value. Capture the time at which the test began. All time values can use start_time as a reference
     dataVector = yVector
     timeVector = xVector
+    test_type_Vector = zVector
     dataVector.clear()
     timeVector.clear()
+    test_type_Vector.clear()
     sampling_time_index = 1
 
     # Initial state checks
@@ -441,7 +444,10 @@ def collect_data(xVector,yVector):
             if linearActuator.state != 'extended':
                 linearActuator.extend()
     print('Data Capture Complete')
-    combinedVector = np.column_stack((timeVector, dataVector))
+    arr_shape = timeVector.shape()
+    test_type_Val = app.frames[DataPage].test_type.get()
+    test_type_Vector = np.full(arr_shape,test_type_Val)
+    combinedVector = np.column_stack((timeVector, dataVector,test_type_Vector))
 
     #########NAMING THE SAVED FILE##########
     #fpath = "testsH/" #this is where files are saved
@@ -513,7 +519,7 @@ def start_data_thread():
     global data_thread
     global continueTest
     continueTest = True
-    data_thread = threading.Thread(target=collect_data,args=(timeVector,dataVector))
+    data_thread = threading.Thread(target=collect_data,args=(timeVector,dataVector,test_type_Vector))
     data_thread.daemon = True
     app.frames[DataPage].status.set('  Capturing data...')
     app.frames[DataPage].progressbar.start(duration_of_signal*10)

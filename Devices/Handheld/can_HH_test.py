@@ -236,13 +236,15 @@ class DataPage(tk.Frame):
 
         statusFrame = tk.LabelFrame(self, text ='Status')
         statusFrame.place(relx=0.8,rely=0.3,relheight=0.6,relwidth=0.2)
-        test_type = IntVar()
-        test_type.set(0)
-        test_type.trace('r',callback1())
         def callback1(*args):
             print("Test_Type was read, value is ",test_type.get())
         def callback2(*args):
             print("Test_type was changed to ", test_type.get())
+
+        test_type = IntVar()
+        test_type.set(0)
+        test_type.trace('r',callback1())
+
         self.neg_resp = Radiobutton(statusFrame,text='Negative',variable = test_type,value=0)
         self.neg_resp.place(relx = 0, rely = 0.1, relwidth = 1,relheight = .1)
         self.pos_resp = Radiobutton(statusFrame,text='Positive',variable = test_type,value=1)

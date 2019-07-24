@@ -11,6 +11,7 @@ import threading
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+from tkinter import *
 # -----> Matplotlib Imports <------
 import numpy as np
 import matplotlib.pyplot as plt
@@ -113,6 +114,7 @@ duration_of_signal = 200#200 # normally 150, time allowed for data acquisition p
 # DO NOT TOUCH # -teehee touched
 dataVector = []
 timeVector = []
+test_type_Vector = []
 #################### Color Settings ####################
 warning_color = '#FFC300'
 tabBar_color = '#85929E'
@@ -234,25 +236,22 @@ class DataPage(tk.Frame):
         statusFrame = tk.LabelFrame(self, text ='Status')
         statusFrame.place(relx=0.8,rely=0.3,relheight=0.6,relwidth=0.2)
 
-        self.stat_pump_lbl = tk.Label(statusFrame, text='PUMP: ', anchor='w')
-        self.stat_pump_lbl.place(relx=0,rely=0,relheight=0.1,relwidth=(1-0.4))
-        self.stat_Valve1_lbl = tk.Label(statusFrame, text= 'Valve 1: ', anchor='w')
-        self.stat_Valve1_lbl.place(relx=0,rely=0.1,relheight=0.1,relwidth=(1-0.4))
-        self.stat_Valve2_lbl = tk.Label(statusFrame, text='Valve 2: ', anchor='w')
-        self.stat_Valve2_lbl.place(relx=0,rely=0.2,relheight=0.1,relwidth=(1-0.4))
-        self.stat_LA_lbl = tk.Label(statusFrame, text='LA: ', anchor='w')
-        self.stat_LA_lbl.place(relx=0,rely=0.3,relheight=0.1,relwidth=(1-0.4))
+        def callback1(*args):
+            print("Test_Type was read, value is ",test_type.get())
+        def callback2(*args):
+            print("Test_type was changed to ", test_type.get())
+        global test_type
+        test_type = IntVar()
+        test_type.set(0)
+        test_type.trace('r',callback1)
+        test_type.trace('w',callback2)
 
-        self.stat_pump = tk.Label(statusFrame, text=pump.state, anchor='w')
-        self.stat_pump.place(relx=.4,rely=0,relheight=0.1,relwidth=(1-0.4))
-        self.stat_Valve1 = tk.Label(statusFrame, text=inValve.state, anchor='w')
-        self.stat_Valve1.place(relx=.4,rely=0.1,relheight=0.1,relwidth=(1-0.4))
-        self.stat_Valve2 = tk.Label(statusFrame, text=outValve.state, anchor='w')
-        self.stat_Valve2.place(relx=.4,rely=0.2,relheight=0.1,relwidth=(1-0.4))
-        self.stat_LA = tk.Label(statusFrame, text=linearActuator.state, anchor='w')
-        self.stat_LA.place(relx=.2,rely=0.3,relheight=0.1,relwidth=(1-0.4))
-
-
+        self.neg_resp = Radiobutton(statusFrame,text='Negative',variable = test_type,value=0)
+        self.neg_resp.place(relx = 0, rely = 0.1, relwidth = 1,relheight = .1)
+        self.pos_resp = Radiobutton(statusFrame,text='Positive',variable = test_type,value=1)
+        self.pos_resp.place(relx = 0, rely = 0.2,relwidth = 1, relheight = .1)
+        self.other_resp = Radiobutton(statusFrame,text='Other',variable = test_type,value = 2)
+        self.other_resp.place(relx = 0, rely = 0.3, relwidth = 1, relheight = .1)
 
         responseFrame = tk.Frame(self)
         responseFrame.place(relx=0.8,rely=0,relheight=0.3,relwidth=0.2)
@@ -362,7 +361,7 @@ def purge_system():
     while time.time() < (start_time + sensing_chamber_purge_time) and continueTest == True:
         if pump.state != True:
 #    pump.enable()
-            print("Automatic pump here")
+            #print("Automatic pump here")
             #app.frames[DataPage].stat_pump.set(pump.state)
         if inValve.state != True:
             inValve.enable()
@@ -375,7 +374,7 @@ def purge_system():
     start_time = time.time() #Reset the time at which purging starts.
     while time.time() < (start_time + clean_chamber_purge_time) and continueTest == True:
         if pump.state != True:
-            print("Automatic pump here")
+            #print("Automatic pump here")
         if inValve.state != False:
             inValve.disable()
             #app.frames[DataPage].stat_valve2.set(inValve.state)
@@ -399,12 +398,14 @@ def fill_chamber():
         inValve.disable()
     messagebox.showinfo("External Valve","Please Close Exeternal Valve, then click Okay.")
 
-def collect_data(xVector,yVector):
+def collect_data(xVector,yVector,zVector):
     start_time = time.time()  # Local value. Capture the time at which the test began. All time values can use start_time as a reference
     dataVector = yVector
     timeVector = xVector
+    test_type_Vector = zVector
     dataVector.clear()
     timeVector.clear()
+    test_type_Vector.clear()
     sampling_time_index = 1
 
     # Initial state checks
@@ -439,11 +440,15 @@ def collect_data(xVector,yVector):
             if linearActuator.state != 'extended':
                 linearActuator.extend()
     print('Data Capture Complete')
-    combinedVector = np.column_stack((timeVector, dataVector))
+    global test_type
+    arr_shape = len(timeVector)
+    test_type_Val = test_type.get()
+    test_type_Vector = np.full(arr_shape,test_type_Val)
+    combinedVector = np.column_stack((timeVector, dataVector,test_type_Vector))
 
     #########NAMING THE SAVED FILE##########
-    fpath = "testsH/" #this is where files are saved
-    # fpath = "testing_site/" #this is a testing area
+    #fpath = "testsH/" #this is where files are saved
+    fpath = "testing_site/" #this is a testing area
     f1 = app.frames[DataPage].filenamefiller.get()
     f2 = strftime("%a%-d%b%Y%H%M%S",localtime())
     fsuffix = ".csv"
@@ -511,7 +516,7 @@ def start_data_thread():
     global data_thread
     global continueTest
     continueTest = True
-    data_thread = threading.Thread(target=collect_data,args=(timeVector,dataVector))
+    data_thread = threading.Thread(target=collect_data,args=(timeVector,dataVector,test_type_Vector))
     data_thread.daemon = True
     app.frames[DataPage].status.set('  Capturing data...')
     app.frames[DataPage].progressbar.start(duration_of_signal*10)
@@ -539,7 +544,7 @@ def end_testing():
 try:
     app = CannibixHHGUI()
     app.mainloop()
-except keyboardinterrupt:
+except KeyboardInterrupt:
     GPIO.cleanup()
 finally:
     GPIO.cleanup()

@@ -440,8 +440,8 @@ def collect_data(xVector,yVector,zVector):
     combinedVector = np.column_stack((timeVector, dataVector,test_type_Vector))
 
     #########NAMING THE SAVED FILE##########
-    #fpath = "testsH/" #this is where files are saved
-    fpath = "testing_site/" #this is a testing area
+    fpath = "testsH/" #this is where files are saved
+    #fpath = "testing_site/" #this is a testing area
     f1 = app.frames[DataPage].filenamefiller.get()
     f2 = strftime("%a%-d%b%Y%H%M%S",localtime())
     fsuffix = ".csv"

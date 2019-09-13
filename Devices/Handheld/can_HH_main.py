@@ -199,7 +199,8 @@ class DataPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         control_btn = tk.Button(controller.tabBar, text='Data', bg=tabBar_color, activebackground=tabBarActive_color, bd=0, command=lambda: controller.show_frame(DataPage))
-        control_btn.pack(side='left', expand= True, fill = 'both')#    while(pressureSensor.read() < b_threshold_val):
+        control_btn.pack(side='left', expand= True, fill = 'both')
+        #    while(pressureSensor.read() < b_threshold_val):
 #        print("BLOW HARDER: %d", pressureSensor.read())
 #    while(pressureSensor.read() > b_threshold_val):
 #        print("Collecting sample")

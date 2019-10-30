@@ -87,7 +87,7 @@ chamber_force_fill_time = 1 # normally 1, fill the sensing chamber without an ou
 sampling_time = 0.1 # time between samples taken, determines sampling frequency
 sensing_delay_time = 2 # normall 10, time delay after beginning data acquisition till when the sensor is exposed to sample
 sensing_retract_time = 50 # normally 60, time allowed before sensor is retracted, no longer exposed to sample
-duration_of_signal =  200 # normally 150, time allowed for data acquisition per test run
+duration_of_signal =  800 # normally 150, time allowed for data acquisition per test run
 #################### Data Array ####################
 # DO NOT TOUCH # -teehee touched
 dataVector = []

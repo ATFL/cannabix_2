@@ -21,7 +21,9 @@ class LinearActuator:
     def extend(self):
         print('Extending linear actuator.')
         GPIO.output(self.pinEnable, GPIO.HIGH)
-        self.pwm.ChangeDutyCycle(5.3)
+        extending = 5.3 #5.3
+        self.pwm.ChangeDutyCycle(extending) #5.3
+        print('Extended at',extending)
         time.sleep(1.6)
         GPIO.output(self.pinEnable, GPIO.LOW)
         self.state = 'extended'
@@ -151,9 +153,9 @@ class Pump:
     def enable(self):
         GPIO.output(self.pin, GPIO.HIGH)
         self.state = True
-        print('Pump enabled.')
+        print('Fans enabled.')
 
     def disable(self):
         GPIO.output(self.pin, GPIO.LOW)
         self.state = False
-        print('Pump disabled.')
+        print('Fans disabled.')

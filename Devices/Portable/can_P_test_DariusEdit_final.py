@@ -86,8 +86,8 @@ chamber_force_fill_time = 1 # normally 1, fill the sensing chamber without an ou
 # Testing Variables
 sampling_time = 0.1 # time between samples taken, determines sampling frequency
 sensing_delay_time = 5 # normall 10, time delay after beginning data acquisition till when the sensor is exposed to sample
-sensing_retract_time = 95 # normally 60, time allowed before sensor is retracted, no longer exposed to sample
-duration_of_signal =  245 # normally 150, time allowed for data acquisition per test run
+sensing_retract_time = 65 # normally 60, time allowed before sensor is retracted, no longer exposed to sample
+duration_of_signal =  215 # normally 150, time allowed for data acquisition per test run
 #################### Data Array ####################
 # DO NOT TOUCH # -teehee touched
 dataVector = []
@@ -434,7 +434,7 @@ def collect_data(xVector,yVector):
     print('Data Capture Complete')
     combinedVector = np.column_stack((timeVector, dataVector))
 
-    filename = strftime("testsP/%a%-d%b%Y%H%M%S.csv",gmtime())
+    filename = strftime("testsP/%a%-d%b%Y%H%M%S.csv",localtime()) #Mikko, used to be gmtime()
     np.savetxt(filename,combinedVector, fmt='%.10f', delimiter=',')
 
 

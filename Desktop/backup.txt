@@ -73,7 +73,7 @@ all_sensors = all_sensors(sensor1,sensor2,sensor3,sensor4)
 #valve2 = Valve('Valve 2', pinValve2)
 #valve3 = Valve('Valve 3', pinValve3)
 # Pump
-pinPump = 11 #11 #Darius Edit 
+pinPump = 11 #Darius Edit 
 pump = Pump(pinPump)
 #################### System Variables ####################
 # Purging Variables
@@ -85,9 +85,9 @@ chamber_force_fill_time = 1 # normally 1, fill the sensing chamber without an ou
 
 # Testing Variables
 sampling_time = 0.1 # time between samples taken, determines sampling frequency
-sensing_delay_time = 5 # normall 10, time delay after beginning data acquisition till when the sensor is exposed to sample
-sensing_retract_time = 65 # normally 60, time allowed before sensor is retracted, no longer exposed to sample
-duration_of_signal =  215 # normally 150, time allowed for data acquisition per test run
+sensing_delay_time = 2 # normall 10, time delay after beginning data acquisition till when the sensor is exposed to sample
+sensing_retract_time = 50 # normally 60, time allowed before sensor is retracted, no longer exposed to sample
+duration_of_signal =  800 # normally 150, time allowed for data acquisition per test run
 #################### Data Array ####################
 # DO NOT TOUCH # -teehee touched
 dataVector = []
@@ -261,7 +261,7 @@ class ManualControlPage(tk.Frame):
         # self.btn_6.place(relx=0,rely=0.5,relheight=0.1,relwidth=buttonWidth)
         # self.btn_7 = tk.Button(controlFrame, text='Switch Valve 2', command=lambda:valve2.switch())#,app.frames[DataPage].stat_valve2.set(outValve.state)])
         # self.btn_7.place(relx=0,rely=0.6,relheight=0.1,relwidth=buttonWidth)
-        self.btn_8 = tk.Button(controlFrame, text='Switch Fans', command=lambda:pump.switch())#,app.frames[DataPage].stat_pump.set(pump.state)])
+        self.btn_8 = tk.Button(controlFrame, text='Switch Pump', command=lambda:pump.switch())#,app.frames[DataPage].stat_pump.set(pump.state)])
         self.btn_8.place(relx=0,rely=0.5,relheight=0.1,relwidth=buttonWidth)
         # self.btn_9 = tk.Button(controlFrame, text='Read Pressure', command=lambda:pressureSensor.print())
         # self.btn_9.place(relx=0,rely=0.8,relheight=0.1,relwidth=buttonWidth)
@@ -280,7 +280,7 @@ class ManualControlPage(tk.Frame):
         # lbl_6.place(relx=buttonWidth,rely=0.5,relheight=0.1,relwidth=(1-buttonWidth))
         # lbl_7 = tk.Label(controlFrame, text='   Toggle the outlet valve.', anchor='w')
         # lbl_7.place(relx=buttonWidth,rely=0.6,relheight=0.1,relwidth=(1-buttonWidth))
-        lbl_8 = tk.Label(controlFrame, text='  Toggle the fans.', anchor='w')
+        lbl_8 = tk.Label(controlFrame, text='  Toggle the pump.', anchor='w')
         lbl_8.place(relx=buttonWidth,rely=0.5,relheight=0.1,relwidth=(1-buttonWidth))
         # lbl_9 = tk.Label(controlFrame, text='  Read the current Pressure.', anchor='w')
         # lbl_9.place(relx=buttonWidth,rely=0.8,relheight=0.1,relwidth=(1-buttonWidth))
@@ -341,8 +341,7 @@ def purge_system():
     if linearActuator.state != 'default':
         linearActuator.default()
     if pump.state != True:
-        #    pump.enable() # mikko edit
-            pump.disable()
+            pump.enable()
         #app.frames[DataPage].stat_LA.set(linearActuator.state)
     messagebox.showinfo("FANS ON","Please purge with Nitrogen and press okay once finished")
     # Purge the clean chamber.
@@ -350,8 +349,7 @@ def purge_system():
 
     while time.time() < (start_time + sensing_chamber_purge_time) and continueTest == True:
         if pump.state != True:
-            pump.disabled()
-        #    pump.enable() # mikko edit
+            pump.enable()
         if linearActuator.state != 'retracted':
             linearActuator.retract()
 
@@ -367,8 +365,7 @@ def purge_system():
     start_time = time.time() #Reset the time at which purging starts.
     while time.time() < (start_time + clean_chamber_purge_time) and continueTest == True:
         if pump.state != True:
-            pump.disable()
-        #     pump.enable() # mikko edit
+             pump.enable()
         if linearActuator.state != 'extended':
             linearActuator.extend()
             #app.frames[DataPage].stat_pump.set(pump.state)
@@ -434,7 +431,7 @@ def collect_data(xVector,yVector):
     print('Data Capture Complete')
     combinedVector = np.column_stack((timeVector, dataVector))
 
-    filename = strftime("testsP/%a%-d%b%Y%H%M%S.csv",localtime()) #Mikko, used to be gmtime()
+    filename = strftime("testsP/%a%-d%b%Y%H%M%S.csv",gmtime())
     np.savetxt(filename,combinedVector, fmt='%.10f', delimiter=',')
 
 
@@ -572,3 +569,4 @@ except keyboardinterrupt:
     GPIO.cleanup()
 finally:
     GPIO.cleanup()
+

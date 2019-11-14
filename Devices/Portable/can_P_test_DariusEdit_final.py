@@ -78,7 +78,7 @@ pump = Pump(pinPump)
 #################### System Variables ####################
 # Purging Variables
 clean_chamber_purge_time = 0 # normally 30s
-sensing_chamber_purge_time = 50 # normally 60s
+sensing_chamber_purge_time = 2 # normally 40s
 # Filling Variables
 chamber_fill_time = 1 # normally 45, fill the sensing chamber with the outlet valve open.
 chamber_force_fill_time = 1 # normally 1, fill the sensing chamber without an outlet.
@@ -204,13 +204,8 @@ class DataPage(tk.Frame):
         self.runBtn = tk.Button(self.run_and_stop, text='RUN', bg=runBtn_color, activebackground=runBtn_color, command=lambda:start_purge_thread())
         self.runBtn.grid(row=0, column=0, sticky="nsew")
 
-
         statusFrame = tk.LabelFrame(self, text ='Status')
         statusFrame.place(relx=0.8,rely=0.3,relheight=0.6,relwidth=0.2)
-
-
-
-
 
         responseFrame = tk.Frame(self)
         responseFrame.place(relx=0.8,rely=0,relheight=0.3,relwidth=0.2)
@@ -225,7 +220,14 @@ class DataPage(tk.Frame):
         # self.ppmVar = tk.IntVar()
         # self.ppmVar.set(0)
         # ppmDisplay = tk.Label(ppmDisplay, textvariable = self.ppmVar, anchor='w')
-        # ppmDisplay.place(relx=0.3,rely=0,relheight=1,relwidth=0.7)      
+        # ppmDisplay.place(relx=0.3,rely=0,relheight=1,relwidth=0.7)
+        
+        self.filenamelbl = tk.Label(responseFrame,text='Filename (optional)',anchor='w')
+        self.filenamelbl.place(relx=0,rely=0.7,relheight = 0.5,relwidth = 1)
+        #self.filename_add = tk.StringVar()
+        self.filenamefiller = tk.Entry(responseFrame)
+        self.filenamefiller.place(relx=0,rely=0.72,relwidth=1)
+        #self.filenamefiller.set('')
  
 
 class ManualControlPage(tk.Frame):
@@ -328,7 +330,7 @@ def post_purge_system():
     #    if linearActuator.state != 'retracted':
     #             linearActuator.retract()
                  
-    if pump.state != Flase:
+    if pump.state != False:
         pump.disable()
     if linearActuator.state != 'default':
         linearActuator.default()
@@ -350,7 +352,7 @@ def purge_system():
 
     while time.time() < (start_time + sensing_chamber_purge_time) and continueTest == True:
         if pump.state != True:
-            pump.disabled()
+            pump.disable()
         #    pump.enable() # mikko edit
         if linearActuator.state != 'retracted':
             linearActuator.retract()
@@ -433,18 +435,34 @@ def collect_data(xVector,yVector):
         #        linearActuator.retracted()
     print('Data Capture Complete')
     combinedVector = np.column_stack((timeVector, dataVector))
+    
+    #########NAMING THE SAVED FILE##########
+    fpath = "testsP/" #this is where files are saved
+    #fpath = "testing_site/" #this is a testing area
+    f1 = app.frames[DataPage].filenamefiller.get()
+    f2 = strftime("%a%-d%b%Y%H%M%S",localtime())
+    fsuffix = ".csv"
 
-    filename = strftime("testsP/%a%-d%b%Y%H%M%S.csv",localtime()) #Mikko, used to be gmtime()
+    ### OPTION 1: STRING IS ADDITION TO FILENAME BELOW
+    #filename = fpath+f2+f1+fsuffix
+    ### OPTION 2: STRING IS REPLACEMENT FOR FILENAME
+    if f1 != '':
+        filename = fpath+f1+fsuffix
+    else:
+        filename = fpath+f2+fsuffix
+
+
+    # filename = strftime("testsP/%a%-d%b%Y%H%M%S.csv",localtime()) #Mikko, used to be gmtime()
     np.savetxt(filename,combinedVector, fmt='%.10f', delimiter=',')
 
 
     print("Data Saved")
     
-    if linearActuator.state != 'default':
-        linearActuator.default()
+    #if linearActuator.state != 'default':
+    #    linearActuator.default()
     
-    pump.enable()
-    delay(120)
+    #pump.enable()
+    #delay(120)
     
     #app.frames[DataPage].status.set('  post purging...')
     #messagebox.showinfo("Post Purging","Please purge with Nitrogen and press okay once finished")

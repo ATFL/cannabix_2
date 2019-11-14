@@ -84,7 +84,7 @@ chamber_fill_time = 1 # normally 45, fill the sensing chamber with the outlet va
 chamber_force_fill_time = 1 # normally 1, fill the sensing chamber without an outlet.
 
 # Testing Variables
-sampling_time = 0.1 # time between samples taken, determines sampling frequency
+sampling_time = 0.1 # ti2me between samples taken, determines sampling frequency
 sensing_delay_time = 5 # normall 10, time delay after beginning data acquisition till when the sensor is exposed to sample
 sensing_retract_time = 65 # normally 60, time allowed before sensor is retracted, no longer exposed to sample
 duration_of_signal =  215 # normally 150, time allowed for data acquisition per test run

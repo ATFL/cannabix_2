@@ -37,7 +37,7 @@ class LinearActuator:
         self.state = 'retracted'
 
     def default(self):
-        print('Moving linear actuator to default(center) position.')
+        print('Moving linear actuator to default (center) position.')
         GPIO.output(self.pinEnable, GPIO.HIGH)
         self.pwm.ChangeDutyCycle(6)
         time.sleep(1.5)
@@ -119,7 +119,8 @@ class all_sensors:
 
     def print(self):
         temp1,temp2,temp3,temp4 = self.read()
-        print("\nReading from all Sensors: \n{}".format(self.read()))
+        print('\nReading from all sensors: \n1:',round(temp1,4),'\n2:',round(temp2,4),'\n3:',round(temp3,4),'\n4:',round(temp4,4),'\n')
+        #print("\nReading from all Sensors: \n{}".format(self.read()))
 
 class PressureSensor():
     def __init__(self, adc, channel):

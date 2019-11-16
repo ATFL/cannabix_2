@@ -88,6 +88,13 @@ sampling_time = 0.1 # ti2me between samples taken, determines sampling frequency
 sensing_delay_time = 5 # normall 10, time delay after beginning data acquisition till when the sensor is exposed to sample
 sensing_retract_time = 65 # normally 60, time allowed before sensor is retracted, no longer exposed to sample
 duration_of_signal =  215 # normally 150, time allowed for data acquisition per test run
+
+## Testing Variables for debugging
+#sampling_time = 0.1
+#sensing_delay_time = 1 
+#sensing_retract_time = 10
+#duration_of_signal =  10
+
 #################### Data Array ####################
 # DO NOT TOUCH # -teehee touched
 dataVector = []
@@ -332,6 +339,7 @@ def post_purge_system():
                  
     if pump.state != False:
         pump.disable()
+        #print('Fans disabled') 
     if linearActuator.state != 'default':
         linearActuator.default()
     pass        
@@ -343,8 +351,8 @@ def purge_system():
     if linearActuator.state != 'default':
         linearActuator.default()
     if pump.state != True:
-        #    pump.enable() # mikko edit
-            pump.disable()
+            pump.enable()
+            # print('Fans disabled') 
         #app.frames[DataPage].stat_LA.set(linearActuator.state)
     messagebox.showinfo("FANS ON","Please purge with Nitrogen and press okay once finished")
     # Purge the clean chamber.
@@ -352,8 +360,7 @@ def purge_system():
 
     while time.time() < (start_time + sensing_chamber_purge_time) and continueTest == True:
         if pump.state != True:
-            pump.disable()
-        #    pump.enable() # mikko edit
+            pump.enable()
         if linearActuator.state != 'retracted':
             linearActuator.retract()
 
@@ -369,8 +376,7 @@ def purge_system():
     start_time = time.time() #Reset the time at which purging starts.
     while time.time() < (start_time + clean_chamber_purge_time) and continueTest == True:
         if pump.state != True:
-            pump.disable()
-        #     pump.enable() # mikko edit
+            pump.enable()
         if linearActuator.state != 'extended':
             linearActuator.extend()
             #app.frames[DataPage].stat_pump.set(pump.state)
@@ -433,14 +439,15 @@ def collect_data(xVector,yVector):
         #else:
         #    if linearActuator.state != 'retracted':
         #        linearActuator.retracted()
-    print('Data Capture Complete')
+    print('\nData capture complete')
     combinedVector = np.column_stack((timeVector, dataVector))
     
     #########NAMING THE SAVED FILE##########
     fpath = "testsP/" #this is where files are saved
     #fpath = "testing_site/" #this is a testing area
     f1 = app.frames[DataPage].filenamefiller.get()
-    f2 = strftime("%a%-d%b%Y%H%M%S",localtime())
+    f2 = strftime("%Y-%m-%d_%H%M%S",localtime())
+    #f2 = strftime("%a%-d%b%Y%H%M%S",localtime())
     fsuffix = ".csv"
 
     ### OPTION 1: STRING IS ADDITION TO FILENAME BELOW
@@ -448,6 +455,9 @@ def collect_data(xVector,yVector):
     ### OPTION 2: STRING IS REPLACEMENT FOR FILENAME
     if f1 != '':
         filename = fpath+f1+fsuffix
+        if os.path.isfile(filename):
+            print('Filename ',f1, '.csv already exists. Using generic filename.')
+            filename = fpath+f2+fsuffix
     else:
         filename = fpath+f2+fsuffix
 
@@ -456,7 +466,7 @@ def collect_data(xVector,yVector):
     np.savetxt(filename,combinedVector, fmt='%.10f', delimiter=',')
 
 
-    print("Data Saved")
+    print("Data saved as", filename,'\n')
     
     #if linearActuator.state != 'default':
     #    linearActuator.default()
@@ -586,7 +596,7 @@ def end_testing():
 try:
     app = CannibixHHGUI()
     app.mainloop()
-except keyboardinterrupt:
+except KeyboardInterrupt:
     GPIO.cleanup()
 finally:
     GPIO.cleanup()

@@ -443,7 +443,7 @@ def collect_data(xVector,yVector):
     combinedVector = np.column_stack((timeVector, dataVector))
     
     #########NAMING THE SAVED FILE##########
-    fpath = "testsP/" #this is where files are saved
+    fpath = "test_kelowna/" #this is where files are saved
     #fpath = "testing_site/" #this is a testing area
     f1 = app.frames[DataPage].filenamefiller.get()
     f2 = strftime("%Y-%m-%d_%H%M%S",localtime())

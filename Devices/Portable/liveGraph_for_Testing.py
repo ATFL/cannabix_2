@@ -18,12 +18,18 @@ import Adafruit_ADS1x15 as ads
 adc = ads.ADS1115(0x48)
 global timeVector
 timeVector = []
-global dataVector1
-dataVector1 = []
-global livegraph
-global dataVector2
-dataVector2 = []
-global livegraph
+global mos1
+mos1_data = []
+global mos2
+mos2_data = []
+global mos3
+mos3_data = []
+global mos4
+mos4_data = []
+global dataVector
+dataVector = []
+global liveGraph
+global liveGraph2
 global app
 global startTime
 startTime = time.time()
@@ -57,22 +63,39 @@ class live_Graph(pg.PlotWidget):
     def __init__(self,parent=None):
         super(live_Graph,self).__init__()
         #self.setAutoFillBackground(True)
-        self.setRange(xRange=(0,200),yRange=(0,5),disableAutoRange=False)
+        #self.setRange(xRange=(0,200),yRange=(0.5,3),disableAutoRange=True)
+        #self.setXRange(0,200)
+        self.setYRange(0,5)
+        #self.autoRange()
+        #self.setAutoPan()
         self.setTitle("Live Graph")
+
         self.setStyleSheet("pg.PlotWidget {border-style: outset; max-height: 50}")
 def update_Graph():
     global liveGraph
+    global liveGraph2
     global app
     global timeVector
-    global dataVector1
-    global dataVector2
+    global dataVector
     global startTime
+    global mos1_data
+    global mos2_data
+    global mos3_data
+    global mos4_data
+    global mos
     liveGraph.clear()
+    #liveGraph2.clear()
     timeVector.append(time.time() - startTime)
-    dataVector1 = mos2.read()
-    dataVector2 = mos3.read()
-    liveGraph.plot(timeVector, dataVector1,"A1")
-    liveGraph.plot(timeVector, dataVector2,"A2")
+    mos1_data.append(mos1.read())
+    mos2_data.append(mos2.read())
+    mos3_data.append(mos3.read())
+    mos4_data.append(mos4.read())
+    #os = [mos1,mos2]
+
+    liveGraph.plot(timeVector, mos1_data,pen='r')
+    liveGraph.plot(timeVector, mos2_data,pen='b')
+    liveGraph.plot(timeVector, mos3_data,pen='g')
+    liveGraph.plot(timeVector, mos4_data,pen='p')
 
     app.processEvents()
 
@@ -87,7 +110,7 @@ class start_Button(QPushButton):
         timeCheck = time.time()
         runForever = True
         while runForever:
-            if time.time() - timeCheck > 0.1:
+            if time.time() - timeCheck > 0.05:
                 update_Graph()
                 timeCheck = time.time()
             else:
@@ -95,19 +118,21 @@ class start_Button(QPushButton):
 
 
 mos1 = MOS(adc, 0)
-mos2 = MOS(adc, 1)
-mos3 = MOS(adc, 2)
-mos4 = MOS(adc, 3)
+mos2 = MOS(adc,1)
+mos3 = MOS(adc,2)
+mos4 = MOS(adc,3)
 app = QApplication([])
 app.setStyle('Fusion')
 
 mainPage = QWidget()
 mainPage.setWindowTitle("Mahan's Program")
-mainPage.resize(800, 500)
+mainPage.resize(1200, 700)
 liveGraph = live_Graph()
+#liveGraph2 = live_Graph()
 startB = start_Button()
 pageLayout = QGridLayout()
 pageLayout.addWidget(liveGraph)
+#pageLayout.addWidget(liveGraph2)
 pageLayout.addWidget(startB)
 mainPage.setLayout(pageLayout)
 mainPage.show()

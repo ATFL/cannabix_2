@@ -201,6 +201,8 @@ pageLayout = QGridLayout()
 pageLayout.addWidget(liveGraph)
 
 pageLayout.addWidget(startB)
+pageLayout.addWidget(linAc_exposeB)
+pageLayout.addWidget(linAc_recoverB)
 mainPage.setLayout(pageLayout)
 mainPage.show()
 app.exec()

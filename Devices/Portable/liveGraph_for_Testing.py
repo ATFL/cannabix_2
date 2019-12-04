@@ -104,20 +104,20 @@ def update_Graph():
     liveGraph.plot(timeVector, mos4_data)
 
     app.processEvents()
-    return mos1_data_new,mos2_data_new,mos3_data_new,mos4_data_new
+    #return mos1_data_new,mos2_data_new,mos3_data_new,mos4_data_new
 
-class start_recording_button(QPushButton):
-    def __init__(self,parent=None):
-        super(start_recording_button,parent=None).__init__()
-        self.setStyleSheet("QPushButton {font: 13px}")
-        self.setText("Start Recording")
-        self.clicked.connect(lambda: self.start_recording())
-
-    def start_recording(self):
-        global recording_status
-        recording_status = True
-        while recording_status == True:
-            m1,m2,m3,m4 = update_Graph()
+# class start_recording_button(QPushButton):
+#     def __init__(self,parent=None):
+#         super(start_recording_button,parent=None).__init__()
+#         self.setStyleSheet("QPushButton {font: 13px}")
+#         self.setText("Start Recording")
+#         self.clicked.connect(lambda: self.start_recording())
+#
+#     def start_recording(self):
+#         global recording_status
+#         recording_status = True
+#         while recording_status == True:
+#             m1,m2,m3,m4 = update_Graph()
 
 
 

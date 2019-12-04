@@ -41,7 +41,7 @@ class linearActuator():
         GPIO.setup(self.enPin,GPIO.OUT)
         GPIO.output(self.enPin,GPIO.HIGH)
         self.pwm = GPIO.PWM(self.pinNum,50)
-        self.pwm.start(7.6)
+        self.pwm.start(7.7)
         time.sleep(2)
         GPIO.output(self.enPin,GPIO.LOW)
         self.state = 'recovery'
@@ -51,7 +51,7 @@ class linearActuator():
         if self.state != 'recovery':
             print("Moving to Recovery")
             GPIO.output(self.enPin,GPIO.HIGH)
-            self.pwm.ChangeDutyCycle(7.6)
+            self.pwm.ChangeDutyCycle(7.7)
             time.sleep(2)
             GPIO.output(self.enPin,GPIO.LOW)
             print("At Recovery")
@@ -64,7 +64,7 @@ class linearActuator():
         if self.state != 'exposure':
             print("Moving to Exposure")
             GPIO.output(self.enPin,GPIO.HIGH)
-            self.pwm.ChangeDutyCycle(5.0)
+            self.pwm.ChangeDutyCycle(4.9)
             time.sleep(2)
             GPIO.output(self.enPin,GPIO.LOW)
             #time.sleep(2)
@@ -178,7 +178,7 @@ class linAc_recoverButton(QPushButton):
     def recover(self):
         if self.linearActuator.state == 'exposure':
             self.linearActuator.recover()
-            self.setText("Click to Expose")
+            #self.setText("Click to Expose")
             #self.setIcon(self.red)
             self.linearActuator.state = 'recovery'
 

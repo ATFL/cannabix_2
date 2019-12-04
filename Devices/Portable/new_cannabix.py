@@ -174,7 +174,7 @@ def update_Graph():
     liveGraph.plot(timeVector, x1, pen='r')
     liveGraph.plot(timeVector,x2, pen='b')
     liveGraph.plot(timeVector,x3, pen='g')
-    liveGraph.plot(timeVector,x4, pen='p')
+    liveGraph.plot(timeVector,x4)
     app.processEvents()
 
 class start_Button(QPushButton):

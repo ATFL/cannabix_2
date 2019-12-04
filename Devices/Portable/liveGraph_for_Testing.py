@@ -95,7 +95,7 @@ def update_Graph():
     liveGraph.plot(timeVector, mos1_data,pen='r')
     liveGraph.plot(timeVector, mos2_data,pen='b')
     liveGraph.plot(timeVector, mos3_data,pen='g')
-    liveGraph.plot(timeVector, mos4_data,pen='p')
+    liveGraph.plot(timeVector, mos4_data)
 
     app.processEvents()
 

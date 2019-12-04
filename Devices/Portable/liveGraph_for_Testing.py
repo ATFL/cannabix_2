@@ -34,6 +34,8 @@ global app
 global startTime
 startTime = time.time()
 global mos
+global recording_status
+recording_status = False
 
 class MOS:
     def __init__(self, adc, channel):
@@ -86,10 +88,14 @@ def update_Graph():
     liveGraph.clear()
     #liveGraph2.clear()
     timeVector.append(time.time() - startTime)
-    mos1_data.append(mos1.read())
-    mos2_data.append(mos2.read())
-    mos3_data.append(mos3.read())
-    mos4_data.append(mos4.read())
+    mos1_data_new = mos1.read()
+    mos2_data_new = mos2.read()
+    mos3_data_new = mos3.read()
+    mos4_data_new = mos4.read()
+    mos1_data.append(mos1_data_new)
+    mos2_data.append(mos2_data_new)
+    mos3_data.append(mos3_data_new)
+    mos4_data.append(mos4_data_new)
     #os = [mos1,mos2]
 
     liveGraph.plot(timeVector, mos1_data,pen='r')
@@ -98,6 +104,22 @@ def update_Graph():
     liveGraph.plot(timeVector, mos4_data)
 
     app.processEvents()
+    return mos1_data_new,mos2_data_new,mos3_data_new,mos4_data_new
+
+class start_recording_button(QPushButton):
+    def __init__(self,parent=None):
+        super(start_recording_button,parent=None).__init__()
+        self.setStyleSheet("QPushButton {font: 13px}")
+        self.setText("Start Recording")
+        self.clicked.connect(lambda: self.start_recording())
+
+    def start_recording(self):
+        global recording_status
+        recording_status = True
+        while recording_status == True:
+            m1,m2,m3,m4 = update_Graph()
+
+
 
 class start_Button(QPushButton):
     def __init__(self,parent=None):

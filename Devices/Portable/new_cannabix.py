@@ -122,7 +122,7 @@ def collect_data():
     sampling_time_index = 1
     sampling_time = 0.1
     exposure_time = 42
-    duration_of_signal = 200
+    duration_of_signal = 300
     #software testing values
 
 

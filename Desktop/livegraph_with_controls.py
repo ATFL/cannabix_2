@@ -182,7 +182,6 @@ class linAc_recoverButton(QPushButton):
             #self.setIcon(self.red)
             self.linearActuator.state = 'recovery'
 
-
 linAc = linearActuator(14,15)
 mos1 = MOS(adc, 2)
 mos2 = MOS(adc,3)

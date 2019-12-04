@@ -87,7 +87,7 @@ class start_Button(QPushButton):
                 pass
             
         
-mos = MOS(adc, 1)
+mos = MOS(adc, 0)
 app = QApplication([])
 app.setStyle('Fusion')
 
@@ -102,5 +102,3 @@ pageLayout.addWidget(startB)
 mainPage.setLayout(pageLayout)
 mainPage.show()
 app.exec() 
-
-        

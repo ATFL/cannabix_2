@@ -78,16 +78,23 @@ pump = Pump(pinPump)
 #################### System Variables ####################
 # Purging Variables
 clean_chamber_purge_time = 0 # normally 30s
-sensing_chamber_purge_time = 50 # normally 60s
+sensing_chamber_purge_time = 2 # normally 40s
 # Filling Variables
 chamber_fill_time = 1 # normally 45, fill the sensing chamber with the outlet valve open.
 chamber_force_fill_time = 1 # normally 1, fill the sensing chamber without an outlet.
 
 # Testing Variables
-sampling_time = 0.1 # time between samples taken, determines sampling frequency
+sampling_time = 0.1 # ti2me between samples taken, determines sampling frequency
 sensing_delay_time = 5 # normall 10, time delay after beginning data acquisition till when the sensor is exposed to sample
-sensing_retract_time = 95 # normally 60, time allowed before sensor is retracted, no longer exposed to sample
-duration_of_signal =  245 # normally 150, time allowed for data acquisition per test run
+sensing_retract_time = 65 # normally 60, time allowed before sensor is retracted, no longer exposed to sample
+duration_of_signal =  215 # normally 150, time allowed for data acquisition per test run
+
+## Testing Variables for debugging
+#sampling_time = 0.1
+#sensing_delay_time = 1 
+#sensing_retract_time = 10
+#duration_of_signal =  10
+
 #################### Data Array ####################
 # DO NOT TOUCH # -teehee touched
 dataVector = []
@@ -204,13 +211,8 @@ class DataPage(tk.Frame):
         self.runBtn = tk.Button(self.run_and_stop, text='RUN', bg=runBtn_color, activebackground=runBtn_color, command=lambda:start_purge_thread())
         self.runBtn.grid(row=0, column=0, sticky="nsew")
 
-
         statusFrame = tk.LabelFrame(self, text ='Status')
         statusFrame.place(relx=0.8,rely=0.3,relheight=0.6,relwidth=0.2)
-
-
-
-
 
         responseFrame = tk.Frame(self)
         responseFrame.place(relx=0.8,rely=0,relheight=0.3,relwidth=0.2)
@@ -225,7 +227,14 @@ class DataPage(tk.Frame):
         # self.ppmVar = tk.IntVar()
         # self.ppmVar.set(0)
         # ppmDisplay = tk.Label(ppmDisplay, textvariable = self.ppmVar, anchor='w')
-        # ppmDisplay.place(relx=0.3,rely=0,relheight=1,relwidth=0.7)      
+        # ppmDisplay.place(relx=0.3,rely=0,relheight=1,relwidth=0.7)
+        
+        self.filenamelbl = tk.Label(responseFrame,text='Filename (optional)',anchor='w')
+        self.filenamelbl.place(relx=0,rely=0.7,relheight = 0.5,relwidth = 1)
+        #self.filename_add = tk.StringVar()
+        self.filenamefiller = tk.Entry(responseFrame)
+        self.filenamefiller.place(relx=0,rely=0.72,relwidth=1)
+        #self.filenamefiller.set('')
  
 
 class ManualControlPage(tk.Frame):
@@ -328,8 +337,9 @@ def post_purge_system():
     #    if linearActuator.state != 'retracted':
     #             linearActuator.retract()
                  
-    if pump.state != Flase:
+    if pump.state != False:
         pump.disable()
+        #print('Fans disabled') 
     if linearActuator.state != 'default':
         linearActuator.default()
     pass        
@@ -341,8 +351,8 @@ def purge_system():
     if linearActuator.state != 'default':
         linearActuator.default()
     if pump.state != True:
-        #    pump.enable() # mikko edit
-            pump.disable()
+            pump.enable()
+            # print('Fans disabled') 
         #app.frames[DataPage].stat_LA.set(linearActuator.state)
     messagebox.showinfo("FANS ON","Please purge with Nitrogen and press okay once finished")
     # Purge the clean chamber.
@@ -350,8 +360,7 @@ def purge_system():
 
     while time.time() < (start_time + sensing_chamber_purge_time) and continueTest == True:
         if pump.state != True:
-            pump.disabled()
-        #    pump.enable() # mikko edit
+            pump.enable()
         if linearActuator.state != 'retracted':
             linearActuator.retract()
 
@@ -367,8 +376,7 @@ def purge_system():
     start_time = time.time() #Reset the time at which purging starts.
     while time.time() < (start_time + clean_chamber_purge_time) and continueTest == True:
         if pump.state != True:
-            pump.disable()
-        #     pump.enable() # mikko edit
+            pump.enable()
         if linearActuator.state != 'extended':
             linearActuator.extend()
             #app.frames[DataPage].stat_pump.set(pump.state)
@@ -431,20 +439,40 @@ def collect_data(xVector,yVector):
         #else:
         #    if linearActuator.state != 'retracted':
         #        linearActuator.retracted()
-    print('Data Capture Complete')
+    print('\nData capture complete')
     combinedVector = np.column_stack((timeVector, dataVector))
+    
+    #########NAMING THE SAVED FILE##########
+    fpath = "testsP/" #this is where files are saved
+    #fpath = "testing_site/" #this is a testing area
+    f1 = app.frames[DataPage].filenamefiller.get()
+    f2 = strftime("%Y-%m-%d_%H%M%S",localtime())
+    #f2 = strftime("%a%-d%b%Y%H%M%S",localtime())
+    fsuffix = ".csv"
 
-    filename = strftime("testsP/%a%-d%b%Y%H%M%S.csv",gmtime())
+    ### OPTION 1: STRING IS ADDITION TO FILENAME BELOW
+    #filename = fpath+f2+f1+fsuffix
+    ### OPTION 2: STRING IS REPLACEMENT FOR FILENAME
+    if f1 != '':
+        filename = fpath+f1+fsuffix
+        if os.path.isfile(filename):
+            print('Filename ',f1, '.csv already exists. Using generic filename.')
+            filename = fpath+f2+fsuffix
+    else:
+        filename = fpath+f2+fsuffix
+
+
+    # filename = strftime("testsP/%a%-d%b%Y%H%M%S.csv",localtime()) #Mikko, used to be gmtime()
     np.savetxt(filename,combinedVector, fmt='%.10f', delimiter=',')
 
 
-    print("Data Saved")
+    print("Data saved as", filename,'\n')
     
-    if linearActuator.state != 'default':
-        linearActuator.default()
+    #if linearActuator.state != 'default':
+    #    linearActuator.default()
     
-    pump.enable()
-    delay(120)
+    #pump.enable()
+    #delay(120)
     
     #app.frames[DataPage].status.set('  post purging...')
     #messagebox.showinfo("Post Purging","Please purge with Nitrogen and press okay once finished")
@@ -568,7 +596,7 @@ def end_testing():
 try:
     app = CannibixHHGUI()
     app.mainloop()
-except keyboardinterrupt:
+except KeyboardInterrupt:
     GPIO.cleanup()
 finally:
     GPIO.cleanup()

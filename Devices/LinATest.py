@@ -2,12 +2,12 @@ import RPi.GPIO as GPIO
 import time
 
 GPIO.setmode(GPIO.BOARD)
-#GPIO.setup(22,GPIO.OUT)
-GPIO.setup(38,GPIO.OUT)
+GPIO.setup(10,GPIO.OUT)
+GPIO.setup(8,GPIO.OUT)
 
-#GPIO.output(16,GPIO.HIGH)
-pwm = GPIO.PWM(38,50)
-pwmVal = 7
+GPIO.output(10,GPIO.HIGH)
+pwm = GPIO.PWM(8,50)
+pwmVal = 5
 pwm.start(pwmVal)
 
 while(pwmVal != 0):

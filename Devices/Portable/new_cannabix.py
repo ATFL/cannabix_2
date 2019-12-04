@@ -28,8 +28,12 @@ global mos
 global mos2
 global x1
 global x2
+global x3
+global x4
 x1 = []
 x2 = []
+x3 = []
+x4 = []
 
 
 GPIO.setmode(GPIO.BCM)
@@ -129,8 +133,12 @@ def collect_data():
         if (time.time() > (start_time + (sampling_time * sampling_time_index))):
             global x1
             global x2
+            global x3
+            global x4
             x1.append(mos.read())
             x2.append(mos2.read())
+            x3.append(mos3.read())
+            x4.append(mos4.read())
             timeVector.append(time.time() - start_time)
             update_Graph()
 
@@ -145,7 +153,7 @@ def collect_data():
             linAc.recover()
 
 
-    combinedVector = np.column_stack((timeVector,x1,x2))
+    combinedVector = np.column_stack((timeVector,x1,x2,x3,x4))
     filename = time.strftime("/home/pi/Desktop/ATFL/Projects/cannabix/tests/%a%d%b%Y%H%M%S.csv",time.localtime())
     np.savetxt(filename, combinedVector,fmt='%.10f',delimiter=',')
     print('File Saved')
@@ -159,10 +167,14 @@ def update_Graph():
     global timeVector
     global x1
     global x2
+    global x3
+    global x4
     global startTime
     liveGraph.clear()
     liveGraph.plot(timeVector, x1, pen='r')
     liveGraph.plot(timeVector,x2, pen='b')
+    liveGraph.plot(timeVector,x3, pen='g')
+    liveGraph.plot(timeVector,x4, pen='p')
     app.processEvents()
 
 class start_Button(QPushButton):
@@ -211,8 +223,10 @@ class linAc_recoverButton(QPushButton):
 
 
 linAc = linearActuator(14,15)
-mos = MOS(adc, 2)
-mos2 = MOS(adc,3)
+mos = MOS(adc, 0)
+mos2 = MOS(adc,1)
+mos3 = MOS(adc,2)
+mos4 = MOS(adc,3)
 app = QApplication([])
 app.setStyle('Fusion')
 

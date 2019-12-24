@@ -40,7 +40,7 @@ from pathlib import Path
 GPIO.setmode(GPIO.BOARD)
 # Linear Actuator
 pinLA = 8
-pinEnable =12 #10
+pinEnable =10 #12
 linearActuator = LinearActuator(pinLA, pinEnable)
 # Analog-Digital Converter
 #Darius Edit adc = ADS.ADS1115(0x49)

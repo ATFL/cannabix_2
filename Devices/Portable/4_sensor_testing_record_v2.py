@@ -1,6 +1,6 @@
-## Code for Mahan
+## Code for KLN Testing
 
-import numpy as np
+import numpy as np 
 import RPi.GPIO as GPIO
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import *
@@ -8,7 +8,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import pyqtgraph as pg
 pg.setConfigOption('background', 'w')
-pg.setConfigOption('foreground', 'k')
+pg.setConfigOption('foreground', 'k') 
 import random
 import sys
 import time
@@ -18,25 +18,24 @@ import Adafruit_ADS1x15 as ads
 adc = ads.ADS1115(0x48)
 global timeVector
 timeVector = []
-global mos1
-mos1_data = []
-global mos2
-mos2_data = []
-global mos3
-mos3_data = []
-global mos4
-mos4_data = []
-global dataVector
-dataVector = []
-global liveGraph
-global liveGraph2
+global x1
+global x2
+global x3
+global x4
+x1 = []
+x2 = []
+x3 = []
+x4 = []
+global livegraph
 global app
 global startTime
 startTime = time.time()
-global mos
-global recording_status
-recording_status = False
-
+global sens1
+global sens2
+global sens3
+global sens4
+global run_test
+run_test = False
 class MOS:
     def __init__(self, adc, channel):
         # Choose a gain of 1 for reading voltages from 0 to 4.09V.
@@ -64,62 +63,30 @@ class MOS:
 class live_Graph(pg.PlotWidget):
     def __init__(self,parent=None):
         super(live_Graph,self).__init__()
-        #self.setAutoFillBackground(True)
-        #self.setRange(xRange=(0,200),yRange=(0.5,3),disableAutoRange=True)
-        #self.setXRange(0,200)
-        self.setYRange(0,5)
-        #self.autoRange()
-        #self.setAutoPan()
+        #self.setAutoFillBackground(True) 
+        self.setRange(xRange=(0,200),yRange=(0,5),disableAutoRange=False)
         self.setTitle("Live Graph")
-
         self.setStyleSheet("pg.PlotWidget {border-style: outset; max-height: 50}")
 def update_Graph():
     global liveGraph
-    global liveGraph2
     global app
     global timeVector
-    global dataVector
-    global startTime
-    global mos1_data
-    global mos2_data
-    global mos3_data
-    global mos4_data
-    global mos
+    global x1
+    global x2
+    global x3
+    global x4
+    global startTime 
     liveGraph.clear()
-    #liveGraph2.clear()
     timeVector.append(time.time() - startTime)
-    mos1_data_new = mos1.read()
-    mos2_data_new = mos2.read()
-    mos3_data_new = mos3.read()
-    mos4_data_new = mos4.read()
-    mos1_data.append(mos1_data_new)
-    mos2_data.append(mos2_data_new)
-    mos3_data.append(mos3_data_new)
-    mos4_data.append(mos4_data_new)
-    #os = [mos1,mos2]
-
-    liveGraph.plot(timeVector, mos1_data,pen='r')
-    liveGraph.plot(timeVector, mos2_data,pen='b')
-    liveGraph.plot(timeVector, mos3_data,pen='g')
-    liveGraph.plot(timeVector, mos4_data)
-
+    x1.append(sens1.read())
+    x2.append(sens2.read())
+    x3.append(sens3.read())
+    x4.append(sens4.read())
+    liveGraph.plot(timeVector, x1,pen='r')
+    liveGraph.plot(timeVector, x2,pen='g')
+    liveGraph.plot(timeVector, x3,pen='b')
+    liveGraph.plot(timeVector, x4) 
     app.processEvents()
-    #return mos1_data_new,mos2_data_new,mos3_data_new,mos4_data_new
-
-# class start_recording_button(QPushButton):
-#     def __init__(self,parent=None):
-#         super(start_recording_button,parent=None).__init__()
-#         self.setStyleSheet("QPushButton {font: 13px}")
-#         self.setText("Start Recording")
-#         self.clicked.connect(lambda: self.start_recording())
-#
-#     def start_recording(self):
-#         global recording_status
-#         recording_status = True
-#         while recording_status == True:
-#             m1,m2,m3,m4 = update_Graph()
-
-
 
 class start_Button(QPushButton):
     def __init__(self,parent=None):
@@ -127,35 +94,62 @@ class start_Button(QPushButton):
         self.setStyleSheet("QPushButton {font: 13px}")
         self.setText("Start")
         self.clicked.connect(lambda: self.start_Procedure())
-
+      
     def start_Procedure(self):
         timeCheck = time.time()
         runForever = True
-        while runForever:
-            if time.time() - timeCheck > 0.05:
+        run_test = True
+        while run_test: 
+            if time.time() - timeCheck > 0.1:
                 update_Graph()
-                timeCheck = time.time()
+                timeCheck = time.time() 
             else:
                 pass
 
-
-mos1 = MOS(adc, 0)
-mos2 = MOS(adc,1)
-mos3 = MOS(adc,2)
-mos4 = MOS(adc,3)
+class save_Button(QPushButton):
+    def __init__(self,parent=None):
+        super(save_Button,self).__init__()
+        self.setStyleSheet("QPushButton {font: 13px}")
+        self.setText("Save")
+        self.clicked.connect(lambda: self.save())
+      
+    def save(self):
+        run_test = False
+        global timeVector
+        global x1
+        global x2
+        global x3
+        global x4
+        combinedVector = np.column_stack((timeVector,x1,x2,x3,x4))
+        filename = time.strftime('quad_sens_%a%d%b%Y%H%M.csv',time.localtime())
+        np.savetxt(filename,combinedVector,fmt='%.10f',delimiter=',')
+        print("file saved" + filename)
+        timeVector = []
+        x1 = []
+        x2 = []
+        x3 = []
+        x4 = []
+        combinedVector = []
+        
+        
+sens1 = MOS(adc, 0)
+sens2 = MOS(adc, 1)
+sens3 = MOS(adc, 2)
+sens4 = MOS(adc, 3)
 app = QApplication([])
 app.setStyle('Fusion')
 
 mainPage = QWidget()
-mainPage.setWindowTitle("Mahan's Program")
-mainPage.resize(1200, 700)
+mainPage.setWindowTitle("4 Sensor") 
+mainPage.resize(800, 600)
 liveGraph = live_Graph()
-#liveGraph2 = live_Graph()
 startB = start_Button()
+saveB = save_Button()
 pageLayout = QGridLayout()
 pageLayout.addWidget(liveGraph)
-#pageLayout.addWidget(liveGraph2)
 pageLayout.addWidget(startB)
+pageLayout.addWidget(saveB)
 mainPage.setLayout(pageLayout)
 mainPage.show()
-app.exec()
+app.exec() 
+

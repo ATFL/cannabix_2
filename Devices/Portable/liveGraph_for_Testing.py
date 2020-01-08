@@ -67,7 +67,7 @@ class live_Graph(pg.PlotWidget):
         #self.setAutoFillBackground(True)
         #self.setRange(xRange=(0,200),yRange=(0.5,3),disableAutoRange=True)
         #self.setXRange(0,200)
-        self.setYRange(0,5)
+        self.setYRange(1,3)
         #self.autoRange()
         #self.setAutoPan()
         self.setTitle("Live Graph")

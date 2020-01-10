@@ -14,6 +14,7 @@ import sys
 import time
 import datetime
 import Adafruit_ADS1x15 as ads
+import os
 
 adc = ads.ADS1115(0x48)
 global timeVector
@@ -122,8 +123,11 @@ class save_Button(QPushButton):
         global x4
         combinedVector = np.column_stack((timeVector,x1,x2,x3,x4))
         filename = time.strftime('quad_sens_%a%d%b%Y%H%M.csv',time.localtime())
+        if os.path.isfile(filename):
+            print('Filename ',filename, ' already exists.')
+            filename = time.strftime('quad_sens_%a%d%b%Y%H%M%S.csv',time.localtime())
         np.savetxt(filename,combinedVector,fmt='%.10f',delimiter=',')
-        print("file saved" + filename)
+        print("file saved as " + filename)
         timeVector = []
         x1 = []
         x2 = []

@@ -68,30 +68,31 @@ all_sensors = all_sensors(sensor1,sensor2,sensor3,sensor4)
 #pinValve1 = 24
 #pinValve2 = 26
 
-
 #v#alve1 = Valve('Valve 1', pinValve1)
 #valve2 = Valve('Valve 2', pinValve2)
 #valve3 = Valve('Valve 3', pinValve3)
 # Pump
-pinPump = 11 #11 #Darius Edit 
+pinPump = 11 #11 #Darius Edit
 pump = Pump(pinPump)
 #################### System Variables ####################
 # Purging Variables
 clean_chamber_purge_time = 0 # normally 30s
 sensing_chamber_purge_time = 2 # normally 40s
 # Filling Variables
-chamber_fill_time = 1 # normally 45, fill the sensing chamber with the outlet valve open.
-chamber_force_fill_time = 1 # normally 1, fill the sensing chamber without an outlet.
+chamber_fill_time = 1 # normally 45, fill the sensing chamber with the
+outlet valve open.
+chamber_force_fill_time = 1 # normally 1, fill the sensing chamber
+without an outlet.
 
 # Testing Variables
 sampling_time = 0.1 # ti2me between samples taken, determines sampling frequency
 sensing_delay_time = 5 # normall 10, time delay after beginning data acquisition till when the sensor is exposed to sample
-sensing_retract_time = 65 # normally 60, time allowed before sensor is retracted, no longer exposed to sample
-duration_of_signal =  215 # normally 150, time allowed for data acquisition per test run
+sensing_retract_time = 90 # normally 60, time allowed before sensor is retracted, no longer exposed to sample
+duration_of_signal =  550 # normally 150, time allowed for data acquisition per test run
 
 ## Testing Variables for debugging
 #sampling_time = 0.1
-#sensing_delay_time = 1 
+#sensing_delay_time = 1
 #sensing_retract_time = 10
 #duration_of_signal =  10
 
@@ -218,7 +219,7 @@ class DataPage(tk.Frame):
         responseFrame.place(relx=0.8,rely=0,relheight=0.3,relwidth=0.2)
         self.naturalGasLabel = tk.Label(responseFrame, text = 'CANNABIX \n ', relief='groove', borderwidth=2, anchor='center')
         self.naturalGasLabel.place(relx=0,rely=0,relheight=0.7,relwidth=1)
-        self.orig_color = self.naturalGasLabel.cget("background") # Store the original color of the label.
+        self.orig_color = self.naturalGasLabel.cget("background") #Store the original color of the label.
 
         # ppmDisplay = tk.Frame(responseFrame, relief='groove', borderwidth=2)
         # ppmDisplay.place(relx=0,rely=0.7,relheight=0.3,relwidth=1)
@@ -228,15 +229,12 @@ class DataPage(tk.Frame):
         # self.ppmVar.set(0)
         # ppmDisplay = tk.Label(ppmDisplay, textvariable = self.ppmVar, anchor='w')
         # ppmDisplay.place(relx=0.3,rely=0,relheight=1,relwidth=0.7)
-        
         self.filenamelbl = tk.Label(responseFrame,text='Filename (optional)',anchor='w')
         self.filenamelbl.place(relx=0,rely=0.7,relheight = 0.5,relwidth = 1)
         #self.filename_add = tk.StringVar()
         self.filenamefiller = tk.Entry(responseFrame)
         self.filenamefiller.place(relx=0,rely=0.72,relwidth=1)
         #self.filenamefiller.set('')
- 
-
 class ManualControlPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -336,23 +334,20 @@ def post_purge_system():
     #            pump.enable()
     #    if linearActuator.state != 'retracted':
     #             linearActuator.retract()
-                 
+
     if pump.state != False:
         pump.disable()
-        #print('Fans disabled') 
+        #print('Fans disabled')
     if linearActuator.state != 'default':
         linearActuator.default()
-    pass        
-            
-    
-
+    pass
 def purge_system():
 
     if linearActuator.state != 'default':
         linearActuator.default()
     if pump.state != True:
             pump.enable()
-            # print('Fans disabled') 
+            # print('Fans disabled')
         #app.frames[DataPage].stat_LA.set(linearActuator.state)
     messagebox.showinfo("FANS ON","Please purge with Nitrogen and press okay once finished")
     # Purge the clean chamber.
@@ -394,7 +389,6 @@ def purge_system():
     pass
 
 def fill_chamber():
-
     if linearActuator.state != 'retracted':
         linearActuator.retract()
     messagebox.showinfo("Collection","Blow sample into device, press okay once done")
@@ -424,14 +418,12 @@ def collect_data(xVector,yVector):
             sampling_time_index += 1
 
         # If time is between 10-50 seconds and the Linear Actuator position sensor signal from the ADC indicates a retracted state, extend the sensor
-        elif (time.time() >= (start_time + sensing_delay_time) and time.time() <= (
-                sensing_retract_time + start_time) and (continueTest == True)):
+        elif (time.time() >= (start_time + sensing_delay_time) and time.time() <= (sensing_retract_time + start_time) and (continueTest == True)):
             if linearActuator.state != 'extended':
                 linearActuator.extend()
 
         # If time is less than 10 seconds or greater than 50 seconds and linear actuator position sensor signal from the ADC indicates an extended state, retract the sensor
-        elif (((time.time() < (sensing_delay_time + start_time)) or (
-                time.time() > (sensing_retract_time + start_time)))) and (continueTest == True):
+        elif (((time.time() < (sensing_delay_time + start_time)) or (time.time() > (sensing_retract_time + start_time)))) and (continueTest == True):
             if linearActuator.state != 'retracted':
                 linearActuator.retract()
 
@@ -441,7 +433,7 @@ def collect_data(xVector,yVector):
         #        linearActuator.retracted()
     print('\nData capture complete')
     combinedVector = np.column_stack((timeVector, dataVector))
-    
+
     #########NAMING THE SAVED FILE##########
     fpath = "test_kelowna/" #this is where files are saved
     #fpath = "testing_site/" #this is a testing area
@@ -460,29 +452,20 @@ def collect_data(xVector,yVector):
             filename = fpath+f2+fsuffix
     else:
         filename = fpath+f2+fsuffix
-
-
     # filename = strftime("testsP/%a%-d%b%Y%H%M%S.csv",localtime()) #Mikko, used to be gmtime()
     np.savetxt(filename,combinedVector, fmt='%.10f', delimiter=',')
-
-
     print("Data saved as", filename,'\n')
-    
+
     #if linearActuator.state != 'default':
     #    linearActuator.default()
-    
     #pump.enable()
     #delay(120)
-    
     #app.frames[DataPage].status.set('  post purging...')
     #messagebox.showinfo("Post Purging","Please purge with Nitrogen and press okay once finished")
     #post_purge_system()
     #delay(120)
     #pump.disable()
-    
     #linearActuator.default()
-    
-    
     pass
 
 def start_purge_thread():
@@ -545,7 +528,6 @@ def check_data_thread():
     if data_thread.is_alive():
         app.after(20, check_data_thread)
     else:
-        
         app.frames[DataPage].progressbar.stop()
         app.frames[DataPage].graph.update(timeVector,dataVector)
         #app.frames[DataPage].naturalGasLabel.config(bg=warning_color)
@@ -557,9 +539,7 @@ def check_data_thread():
         app.frames[DataPage].status.set('  System ready.')
         #if continueTest == True:
          #   post_purge_thread()
-        
-        
-        
+
 def start_post_purge_thread():
     suppress_buttons()
     app.frames[DataPage].stopBtn.tkraise()
@@ -584,7 +564,6 @@ def check_post_purge_thread():
         release_buttons()
         app.frames[DataPage].runBtn.tkraise()
         app.frames[DataPage].status.set('  System ready.')
-        
 
 def end_testing():
     if purge_thread.is_alive() or fill_thread.is_alive() or data_thread.is_alive():
@@ -593,6 +572,7 @@ def end_testing():
         #release_buttons()
         app.frames[DataPage].runBtn.tkraise()
         app.frames[DataPage].status.set('  System ready.')
+
 try:
     app = CannibixHHGUI()
     app.mainloop()

@@ -1,6 +1,6 @@
 ## Code for KLN Testing
 
-import numpy as np 
+import numpy as np
 import RPi.GPIO as GPIO
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import *
@@ -8,7 +8,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import pyqtgraph as pg
 pg.setConfigOption('background', 'w')
-pg.setConfigOption('foreground', 'k') 
+pg.setConfigOption('foreground', 'k')
 import random
 import sys
 import time
@@ -16,7 +16,7 @@ import datetime
 import Adafruit_ADS1x15 as ads
 import os
 
-adc = ads.ADS1115(0x48) #0x49 pressure/temp/humidity #04xA triple #0x48 quad
+adc = ads.ADS1115(0x48) #0x49 pressure/temp/humidity sensor, 04xA triple sensor, 0x48 quad sensor
 global timeVector
 timeVector = []
 global x1
@@ -86,7 +86,7 @@ def update_Graph():
     liveGraph.plot(timeVector, x1,pen='r')
     liveGraph.plot(timeVector, x2,pen='g')
     liveGraph.plot(timeVector, x3,pen='b')
-    liveGraph.plot(timeVector, x4) 
+    #liveGraph.plot(timeVector, x4)
     app.processEvents()
 
 class start_Button(QPushButton):
@@ -95,15 +95,15 @@ class start_Button(QPushButton):
         self.setStyleSheet("QPushButton {font: 13px}")
         self.setText("Start")
         self.clicked.connect(lambda: self.start_Procedure())
-      
+
     def start_Procedure(self):
         timeCheck = time.time()
         runForever = True
         run_test = True
-        while run_test: 
+        while run_test:
             if time.time() - timeCheck > 0.1:
                 update_Graph()
-                timeCheck = time.time() 
+                timeCheck = time.time()
             else:
                 pass
 
@@ -113,7 +113,7 @@ class save_Button(QPushButton):
         self.setStyleSheet("QPushButton {font: 13px}")
         self.setText("Save")
         self.clicked.connect(lambda: self.save())
-      
+
     def save(self):
         run_test = False
         global timeVector
@@ -134,8 +134,7 @@ class save_Button(QPushButton):
         x3 = []
         x4 = []
         combinedVector = []
-        
-        
+
 sens1 = MOS(adc, 0)
 sens2 = MOS(adc, 1)
 sens3 = MOS(adc, 2)
@@ -144,7 +143,7 @@ app = QApplication([])
 app.setStyle('Fusion')
 
 mainPage = QWidget()
-mainPage.setWindowTitle("4 Sensor") 
+mainPage.setWindowTitle("4 Sensor")
 mainPage.resize(800, 600)
 liveGraph = live_Graph()
 startB = start_Button()
@@ -155,5 +154,4 @@ pageLayout.addWidget(startB)
 pageLayout.addWidget(saveB)
 mainPage.setLayout(pageLayout)
 mainPage.show()
-app.exec() 
-
+app.exec()

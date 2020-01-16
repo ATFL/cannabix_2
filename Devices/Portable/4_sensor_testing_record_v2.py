@@ -16,7 +16,7 @@ import datetime
 import Adafruit_ADS1x15 as ads
 import os
 
-adc = ads.ADS1115(0x48)
+adc = ads.ADS1115(0x48) #0x49 pressure/temp/humidity #04xA triple #0x48 quad
 global timeVector
 timeVector = []
 global x1

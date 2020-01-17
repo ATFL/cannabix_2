@@ -86,7 +86,7 @@ def update_Graph():
     liveGraph.plot(timeVector, x1,pen='r')
     liveGraph.plot(timeVector, x2,pen='g')
     liveGraph.plot(timeVector, x3,pen='b')
-    #liveGraph.plot(timeVector, x4)
+    liveGraph.plot(timeVector, x4)
     app.processEvents()
 
 class start_Button(QPushButton):
@@ -122,10 +122,10 @@ class save_Button(QPushButton):
         global x3
         global x4
         combinedVector = np.column_stack((timeVector,x1,x2,x3,x4))
-        filename = time.strftime('quad_sens_%a%d%b%Y%H%M.csv',time.localtime())
+        filename = time.strftime('LiveGraph_%Y-%m-%d_%H%M.csv',time.localtime())
         if os.path.isfile(filename):
             print('Filename ',filename, ' already exists.')
-            filename = time.strftime('quad_sens_%a%d%b%Y%H%M%S.csv',time.localtime())
+            filename = time.strftime('LiveGraph_%Y-%m-%d_%H%M%S.csv',time.localtime())
         np.savetxt(filename,combinedVector,fmt='%.10f',delimiter=',')
         print("file saved as " + filename)
         timeVector = []

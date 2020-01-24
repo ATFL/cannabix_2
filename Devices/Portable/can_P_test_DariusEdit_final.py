@@ -79,16 +79,14 @@ pump = Pump(pinPump)
 clean_chamber_purge_time = 0 # normally 30s
 sensing_chamber_purge_time = 2 # normally 40s
 # Filling Variables
-chamber_fill_time = 1 # normally 45, fill the sensing chamber with the
-outlet valve open.
-chamber_force_fill_time = 1 # normally 1, fill the sensing chamber
-without an outlet.
+chamber_fill_time = 1 # normally 45, fill the sensing chamber with the outlet valve open.
+chamber_force_fill_time = 1 # normally 1, fill the sensing chamber without an outlet.
 
 # Testing Variables
-sampling_time = 0.1 # ti2me between samples taken, determines sampling frequency
+sampling_time = 0.1 # time between samples taken, determines sampling frequency
 sensing_delay_time = 5 # normall 10, time delay after beginning data acquisition till when the sensor is exposed to sample
-sensing_retract_time = 90 # normally 60, time allowed before sensor is retracted, no longer exposed to sample
-duration_of_signal =  550 # normally 150, time allowed for data acquisition per test run
+sensing_retract_time = 65 # normally 60, time allowed before sensor is retracted, no longer exposed to sample
+duration_of_signal =  605 # normally 150, time allowed for data acquisition per test run
 
 ## Testing Variables for debugging
 #sampling_time = 0.1
@@ -435,7 +433,7 @@ def collect_data(xVector,yVector):
     combinedVector = np.column_stack((timeVector, dataVector))
 
     #########NAMING THE SAVED FILE##########
-    fpath = "test_kelowna/" #this is where files are saved
+    fpath = "testsP/" #this is where files are saved
     #fpath = "testing_site/" #this is a testing area
     f1 = app.frames[DataPage].filenamefiller.get()
     f2 = strftime("%Y-%m-%d_%H%M%S",localtime())

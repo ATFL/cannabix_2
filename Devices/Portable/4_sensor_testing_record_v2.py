@@ -16,7 +16,7 @@ import datetime
 import Adafruit_ADS1x15 as ads
 import os
 
-adc = ads.ADS1115(0x48) #0x49 pressure/temp/humidity sensor, 04xA triple sensor, 0x48 quad sensor
+adc = ads.ADS1115(0x4A) #0x49 pressure/temp/humidity sensor, 04xA triple sensor, 0x48 quad sensor
 global timeVector
 timeVector = []
 global x1
@@ -86,7 +86,7 @@ def update_Graph():
     liveGraph.plot(timeVector, x1,pen='r')
     liveGraph.plot(timeVector, x2,pen='g')
     liveGraph.plot(timeVector, x3,pen='b')
-    liveGraph.plot(timeVector, x4)
+    #liveGraph.plot(timeVector, x4,pen='m')
     app.processEvents()
 
 class start_Button(QPushButton):

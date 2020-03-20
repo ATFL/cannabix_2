@@ -11,7 +11,7 @@ import sys
 import time
 from datetime import date
 import csv
-from os import *
+import os
 import numpy as np
 from numpy import genfromtxt
 from math import *
@@ -35,7 +35,7 @@ pressVal_last = 0
 global oxVal_last
 oxVal_last = 0
 global curDir
-curDir = getcwd()
+curDir = os.getcwd()
 global today
 today = date.today()
 global device_version
@@ -44,8 +44,8 @@ global totalTime
 global bsc
 global exp
 totalTime = 35
-bsc = 5
-exp = 15
+bsc = 10
+exp = 25
 global p3temp
 global p3hum
 global p3press
@@ -62,6 +62,11 @@ global p3sens4
 global idPath
 idPath = "{}/Data/byID/id{}/".format(curDir,idVal)
 
+### SENSOR NAME DEFINITION ###
+sensor1name = '2601'
+sensor2name = '2603'
+sensor3name = '2620'
+sensor4name = '822'
 ##### COLORS ######
 bgGrey = '#A9A9A9'
 
@@ -137,7 +142,7 @@ def updateGUI():
     sens3plot.setData(testTime,sens3)
     sens4plot.setData(testTime,sens4)
     vecLabel.setText("Temp: {}℃ \n\nHumidity: {}% \n\nPressure: {}kPa \n\nOxygen: {}%".format(int(tempVal_last),int(humVal_last),int(pressVal_last),int(oxVal_last)))
-def updateLog(message):
+def updateLog():
     global idVal
     global curDir
     global idPath
@@ -160,10 +165,15 @@ def saveFile(data):
     appStatus = 'Saving'
     refreshStatus()
 
-
+    ok1 = QMessageBox().information(self,"Custom Log","Would you like to add a message to the log?",QMessageBox.Ok | QMessageBox.No)
     curTime = time.strftime("%d-%m-%y_%H-%M-%S",time.localtime())
     msg,ok = QInputDialog.getText(None,"Add Log Info","Any Addition to ID Log?")
-    updateLog(msg)
+    if(ok1 == QMessageBox.Ok):
+        full_txt = "\n{}: {} \n{}".format(curTime,msg,bar)
+        f.write(full_txt)
+        close(f)
+    else:
+        close(f)
     np.savetxt("{}id{}_{}.csv".format(idPath,idVal,curTime),data,fmt='%.10f',delimiter=',')
     print('File Saved')
 class MOS:
@@ -234,10 +244,10 @@ class startTest(QPushButton):
 
 
         ok1 = QMessageBox.information(self,"Test ID","Using ID {:d}. Press Ok if Correct".format(idVal),QMessageBox.Ok | QMessageBox.No)
-        if(ok1 != QMessageBox.Ok):
-            print("New ID set")
-        # else:
-        #     idb.setID()
+        if(ok1 == QMessageBox.Ok):
+            print("Using ID {}".format(idVal))
+        else:
+            QMessageBox.information(self,"Existing ID","")
         testTime = []
         sens1 = []
         sens2 = []
@@ -252,10 +262,10 @@ class startTest(QPushButton):
         app.processEvents()
         startTime = time.time()
         p1Graph.addLegend(offset=(0,10))
-        sens1plot = p1Graph.plot(testTime,sens1,pen='r',name='sens1')
-        sens2plot = p1Graph.plot(testTime,sens2,pen='g',name='sens2')
-        sens3plot = p1Graph.plot(testTime,sens3,pen='b',name='sens3')
-        sens4plot = p1Graph.plot(testTime,sens4,pen='k',name='sens4')
+        sens1plot = p1Graph.plot(testTime,sens1,pen='r',name='{}'.format(sensor1name))
+        sens2plot = p1Graph.plot(testTime,sens2,pen='g',name='{}'.format(sensor2name))
+        sens3plot = p1Graph.plot(testTime,sens3,pen='b',name='{}'.format(sensor3name))
+        sens4plot = p1Graph.plot(testTime,sens4,pen='k',name='{}'.format(sensor4name))
         p1Graph.setYRange(0,5)
         p1Graph.setXRange(0,50)
 
@@ -294,11 +304,11 @@ class startTest(QPushButton):
             updateGUI()
             app.processEvents()
         all_data = np.column_stack((testTime,sens1,sens2,sens3,sens4,tempVal,humVal,pressVal,oxVal))
-        #ok2 = QMessageBox.information(self,"Save Data","Save the Data Now?",QMessageBox.Yes | QMessageBox.No)
-        #if(ok2 == QMessageBox.Yes):
-        saveFile(all_data)
-        #else:
-        #       print('File Not Saved')
+        ok2 = QMessageBox.information(self,"Save Data","Save the Data Now?",QMessageBox.Yes | QMessageBox.No)
+        if(ok2 == QMessageBox.Yes):
+            saveFile(all_data)
+        else:
+            print('File Not Saved')
         appStatus = 'Ready'
         refreshStatus()
 class liveReading(QPushButton):
@@ -347,10 +357,10 @@ class liveReading(QPushButton):
         sens4 = [0 for _ in range(100)]
 
         p1Graph.addLegend(offset=(0,10))
-        sens1plot = p1Graph.plot(testTime,sens1,pen='r',name='sens1')
-        sens2plot = p1Graph.plot(testTime,sens2,pen='g',name='sens2')
-        sens3plot = p1Graph.plot(testTime,sens3,pen='b',name='sens3')
-        sens4plot = p1Graph.plot(testTime,sens4,pen='k',name='sens4')
+        sens1plot = p1Graph.plot(testTime,sens1,pen='r',name='{}'.format(sensor1name))
+        sens2plot = p1Graph.plot(testTime,sens2,pen='g',name='{}'.format(sensor2name))
+        sens3plot = p1Graph.plot(testTime,sens3,pen='b',name='{}'.format(sensor3name))
+        sens4plot = p1Graph.plot(testTime,sens4,pen='k',name='{}'.format(sensor4name))
         p1Graph.setYRange(0,5)
         p1Graph.setXRange(0,50)
 
@@ -379,24 +389,6 @@ class stop(QPushButton):
         self.clicked.connect(lambda: self.stopfcn())
 
     def stopfcn(self):
-        app.processEvents()
-        global lgStatus
-        global tgStatus
-        global appStatus
-        lgStatus = 0
-        tgStatus = 0
-        appStatus = "Stopped"
-        refreshStatus()
-        app.processEvents()
-        print("Stop Everything")
-class save(QPushButton):
-    def __init__(self,parent=None):
-        super(save,self).__init__()
-        self.setStyleSheet("QPushButton {font: 20px}")
-        self.setText("Save")
-        self.clicked.connect(lambda: self.savefcn())
-
-    def savefcn(self):
         app.processEvents()
         global lgStatus
         global tgStatus
@@ -483,10 +475,10 @@ class loadDataButton(QPushButton):
         p3ox = f.iloc[:,8].values
 
         p3Graph.addLegend(offset=(0,10))
-        p3sens1plot = p3Graph.plot(p3Time,p3sens1,pen='r',name='sens1')
-        p3sens2plot = p3Graph.plot(p3Time,p3sens2,pen='g',name='sens2')
-        p3sens3plot = p3Graph.plot(p3Time,p3sens3,pen='b',name='sens3')
-        p3sens4plot = p3Graph.plot(p3Time,p3sens4,pen='k',name='sens4')
+        p3sens1plot = p3Graph.plot(p3Time,p3sens1,pen='r',name='{}'.format(sensor1name))
+        p3sens2plot = p3Graph.plot(p3Time,p3sens2,pen='g',name='{}'.format(sensor2name))
+        p3sens3plot = p3Graph.plot(p3Time,p3sens3,pen='b',name='{}'.format(sensor3name))
+        p3sens4plot = p3Graph.plot(p3Time,p3sens4,pen='k',name='{}'.format(sensor4name))
         p3temp = mean(p3temp)
         p3hum = mean(p3hum)
         p3press = mean(p3press)
@@ -514,15 +506,19 @@ class nsButton(QPushButton):
     def add_new_s(self):
         app.processEvents()
         subNumber = self.genSubNumber()
-        message = 'Add Subject ' + str(subNumber)
+        message = "Add Subject :" + str(subNumber)
         newSubjectReply = QMessageBox.question(self, 'Add Subject',message,QMessageBox.Yes | QMessageBox.No)
         if newSubjectReply == QMessageBox.Yes:
             #self.getSubInfo(subNumber)
+
             self.genSubject(subNumber)
-            print('New Subject Added')
+            print('Subject Added')
 
         else:
             print('No Actions Done')
+        global subID
+        subID = subNumber
+        refreshID()
     def genSubNumber(self):
         ###This function generates a random number for a test participant
         myArray = genfromtxt('idDatabase.csv',delimiter=',',skip_header=1)
@@ -577,15 +573,10 @@ class lsButton(QPushButton):
         global curDir
         #show a box to input number in
         subNum,okpressed = QInputDialog.getInt(self,"Which Subject?", "Subject: ",0,1,100,1)
-        #print(subNum)
-        #need to access file directory
-        filename = 'id' + str(subNum)
-        directory = 'Data/byID/' + filename
-        ## Testing loading directory
-#         with open(directory + "/" + filename +".txt",'r') as f:
-#             fR = csv.reader(f)
-#             for row in fR:
-#                 print(row)
+
+        global idVal
+        idVal = subNum
+        refreshID()
 
         print('Old Subject Loaded')
 
@@ -647,9 +638,16 @@ p2IDL.setFrameShape(QFrame.Box)
 p2appStat = QLabel()
 p2appStat.setText("Status: {}".format(appStatus))
 p2appStat.setFrameShape(QFrame.Box)
+newsub_b = nsButton()
+loadsub_b = lsButton()
+#addLog = addLogButton()
+
 
 p2L.addWidget(p2IDL,0,6,1,1)
 p2L.addWidget(p2appStat,7,6,1,1)
+p2L.addWidget(newsub_b,2,1,1,3)
+p2L.addWidget(loadsub_b,4,1,1,3)
+#p2L.addWidget(addLog,3,5,1,2)
 
 p2.setLayout(p2L)
 mp.addTab(p2,"Page 2")

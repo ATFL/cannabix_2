@@ -17,6 +17,7 @@ from numpy import genfromtxt
 from math import *
 from pandas import read_csv as rc
 from statistics import mean
+import RPi.GPIO as GPIO
 
 global appStatus
 appStatus = "Ready"
@@ -45,7 +46,7 @@ global bsc
 global exp
 totalTime = 35
 bsc = 10
-exp = 25
+exp = 15
 global p3temp
 global p3hum
 global p3press
@@ -80,10 +81,12 @@ def refreshID():
     p1IDL.setText("ID: {:d}".format(idVal))
     p2IDL.setText("ID: {:d}".format(idVal))
     p3IDL.setText("ID: {:d}".format(idVal))
+    app.processEvents()
 def refreshStatus():
     p1appStat.setText("Status: {}".format(appStatus))
     p2appStat.setText("Status: {}".format(appStatus))
     p3appStat.setText("Status: {}".format(appStatus))
+    app.processEvents()
 def clear_all():
     global tgStatus
     global lgStatus
@@ -120,6 +123,7 @@ def clear_all():
     oxVal = []
     p1Graph.clear()
     vecLabel.setText("Temp: {}℃ \n\nHumidity: {}% \n\nPressure: {}kPa \n\nOxygen: {}%".format('','','',''))
+    app.processEvents()
 def something():
     print("I dont know")
 def updateGUI():
@@ -142,20 +146,26 @@ def updateGUI():
     sens3plot.setData(testTime,sens3)
     sens4plot.setData(testTime,sens4)
     vecLabel.setText("Temp: {}℃ \n\nHumidity: {}% \n\nPressure: {}kPa \n\nOxygen: {}%".format(int(tempVal_last),int(humVal_last),int(pressVal_last),int(oxVal_last)))
+    app.processEvents()
 def updateLog():
     global idVal
     global curDir
     global idPath
     global curTime
+    idPath = "{}/Data/byID/id{}/".format(curDir,idVal)
     logPath = "{}id{}.txt".format(idPath,idVal)
+    curTime = time.strftime("%d-%m-%y_%H-%M-%S",time.localtime())
+
     bar = "-----------------------"
     f = open(logPath,'a+')
+    message,ok1 = QInputDialog.getText(None,"Custom Log","Add text if you want a custom message")
+    print(message)
     if(message != ""):
         full_txt = "\n{}: {} \n{}".format(curTime,message,bar)
     else:
         full_txt = "\n{}: {} \n{}".format(curTime,"New Test Performed",bar)
     f.write(full_txt)
-    close(f)
+
 def saveFile(data):
     global idVal
     global curDir
@@ -165,15 +175,7 @@ def saveFile(data):
     appStatus = 'Saving'
     refreshStatus()
 
-    ok1 = QMessageBox().information(self,"Custom Log","Would you like to add a message to the log?",QMessageBox.Ok | QMessageBox.No)
-    curTime = time.strftime("%d-%m-%y_%H-%M-%S",time.localtime())
-    msg,ok = QInputDialog.getText(None,"Add Log Info","Any Addition to ID Log?")
-    if(ok1 == QMessageBox.Ok):
-        full_txt = "\n{}: {} \n{}".format(curTime,msg,bar)
-        f.write(full_txt)
-        close(f)
-    else:
-        close(f)
+    updateLog()
     np.savetxt("{}id{}_{}.csv".format(idPath,idVal,curTime),data,fmt='%.10f',delimiter=',')
     print('File Saved')
 class MOS:
@@ -198,6 +200,57 @@ class graph(pg.PlotWidget):
         super(graph,self).__init__()
         #self.setRange(xRange=(0,200),yRange=(0,5),disableAutoRange=True)
         self.setStyleSheet("pg.PlotWidget {border-style: outset; max-height: 50}")
+class LinearActuator:
+    def __init__(self, pinLA , pinEnable):
+        self.pinLA = pinLA
+        self.pinEnable = pinEnable
+        GPIO.setup(self.pinLA, GPIO.OUT)
+        GPIO.setup(self.pinEnable, GPIO.OUT)
+        GPIO.output(self.pinEnable, GPIO.HIGH)
+        self.pwm = GPIO.PWM(pinLA, 50)
+        self.pwm.start(8.5)
+        GPIO.output(self.pinEnable, GPIO.LOW)
+        self.state = 'r'
+
+    def extend(self):
+        print('Extending linear actuator.')
+        GPIO.output(self.pinEnable, GPIO.HIGH)
+        extending = 5.55 #5.3
+        self.pwm.ChangeDutyCycle(extending) #5.3
+        print('Extended at',extending)
+        GPIO.output(self.pinEnable, GPIO.LOW)
+        self.state = 'e'
+
+    def retract(self):
+        print('Retracting linear actuator.')
+        GPIO.output(self.pinEnable, GPIO.HIGH)
+        self.pwm.ChangeDutyCycle(8.5)
+        GPIO.output(self.pinEnable, GPIO.LOW)
+        self.state = 'r'
+class Valve:
+    def __init__(self, name, pin):
+        self.name = name
+        self.pin = pin
+        GPIO.setup(self.pin, GPIO.OUT)
+        GPIO.output(self.pin, GPIO.LOW)
+        self.state = False
+
+    def switch(self):
+        if self.state == False:
+            self.enable()
+        elif self.state == True:
+            self.disable()
+
+    def enable(self):
+        GPIO.output(self.pin, GPIO.HIGH)
+        self.state = True
+        print(self.name + ' enabled.')
+        #print("GPIO.LOW")
+
+    def disable(self):
+        GPIO.output(self.pin, GPIO.LOW)
+        self.state = False
+        print(self.name + ' disabled.')
 class startTest(QPushButton):
     def __init__(self,parent=None):
         super(startTest,self).__init__()
@@ -499,7 +552,7 @@ class nsButton(QPushButton):
    ### This Function Generates a Button to create new subjects
     def __init__(self,parent=None):
         super(nsButton,self).__init__()
-        self.setStyleSheet("QPushButton {font:13px}")
+        self.setStyleSheet("QPushButton {font:20px}")
         self.setText("Add New Subject")
         self.clicked.connect(lambda:self.add_new_s())
 
@@ -516,8 +569,8 @@ class nsButton(QPushButton):
 
         else:
             print('No Actions Done')
-        global subID
-        subID = subNumber
+        global idVal
+        idVal = subNumber
         refreshID()
     def genSubNumber(self):
         ###This function generates a random number for a test participant
@@ -532,7 +585,7 @@ class nsButton(QPushButton):
                 pass
             else:
                 numFound = True
-        return myRand
+        return int(myRand)
 
     #def getSubInfo(self,subNumber):
 
@@ -541,7 +594,7 @@ class nsButton(QPushButton):
         ## This function generates the files and folders required for each subject also updates the database
         subN = str(subNumber)[1:-1]
         filename = 'id' + str(subN)
-        directory = 'Data/byID/' + filename
+        directory = '/Data/byID/' + filename
         if not os.path.exists(directory):
             os.makedirs(directory)
 
@@ -559,12 +612,15 @@ class nsButton(QPushButton):
             writer = csv.writer(f)
             writer.writerow([subN,creationDate,"",directory,device_version])
 
-        print("Subject Folder Created, Database Updated")
+        global idVal
+        idVal = subNumber
+        refreshID()
+        print("Subject Folder Created, Database Updated, label changed")
 class lsButton(QPushButton):
     ### This Function Generates a Button to load old subjects
     def __init__(self,parent=None):
         super(lsButton,self).__init__()
-        self.setStyleSheet("QPushButton {font:13px}")
+        self.setStyleSheet("QPushButton {font:20px}")
         self.setText("Load Existing Subject")
         self.clicked.connect(lambda:self.load_s())
 
@@ -579,6 +635,57 @@ class lsButton(QPushButton):
         refreshID()
 
         print('Old Subject Loaded')
+class addLogButton(QPushButton):
+    ### This Function Generates a Button to load old subjects
+    def __init__(self,parent=None):
+        super(addLogButton,self).__init__()
+        self.setStyleSheet("QPushButton {font:20px}")
+        self.setText("Add to Log")
+        self.clicked.connect(lambda:self.addLog())
+
+    def addLog(self):
+        app.processEvents()
+        updateLog()
+class analyze(QPushButton):
+    def __init__(self,parent=None):
+        super(analyze,self).__init__()
+        self.setStyleSheet("QPushButton {font: 13px}")
+        self.setText("Analyze Data")
+        self.clicked.connect(lambda: self.analyzefcn())
+
+    def analyzefcn(self):
+        print("Under Construction")
+class linAC_extend(QPushButton):
+    def __init__(self,parent=None):
+        super(linAC_extend,self).__init__()
+        self.setStyleSheet("QPushButton {font: 13px}")
+        self.setText("linAC Extend")
+        self.clicked.connect(lambda: linAc.extend())
+        print("Extend Linear Actuator")
+class linAC_retract(QPushButton):
+    def __init__(self,parent=None):
+        super(linAC_retract,self).__init__()
+        self.setStyleSheet("QPushButton {font: 13px}")
+        self.setText("linAC Retract")
+        self.clicked.connect(lambda: linAc.retract())
+        print("Retract Linear Actuator")
+class valve_opb(QPushButton):
+    def __init__(self,parent=None):
+        super(valve_opb,self).__init__()
+        self.setStyleSheet("QPushButton {font: 13px}")
+        self.setText("Valve Open")
+        self.clicked.connect(lambda: valve1.enable())
+        print("Extend Linear Actuator")
+class valve_clb(QPushButton):
+    def __init__(self,parent=None):
+        super(valve_clb,self).__init__()
+        self.setStyleSheet("QPushButton {font: 13px}")
+        self.setText("Valve Closed")
+        self.clicked.connect(lambda: valve1.disable())
+        print("Valve Closed")
+
+linAc = LinearActuator(8,10)
+valve1 = valve("main",14)
 
 mos1 = MOS(adc1,0)
 mos2 = MOS(adc1,1)
@@ -594,6 +701,8 @@ app.setStyle('Fusion')
 mp = QTabWidget()
 mp.setWindowTitle("Cannabix GUI v4")
 mp.resize(800,600)
+
+
 #####################################
 p1 = QWidget()
 p1.setStyleSheet("background-color: {}".format(bgGrey))
@@ -616,6 +725,11 @@ clb = clear()
 vecLabel = QLabel()
 vecLabel.setText("Temp: {:d}℃ \n\nHumidity: {:d}% \n\nPressure: {:d}kPa \n\nOxygen: {:d}%".format(int(tempVal_last),int(humVal_last),int(pressVal_last),int(oxVal_last)))
 vecLabel.setFrameShape(QFrame.Box)
+linac_eb = linAC_extend()
+linac_rb = linAC_retract()
+valve_op = valve_opb()
+valve_cl = valve_clb()
+
 p1L.addWidget(p1IDL,0,6,1,1)
 p1L.addWidget(p1appStat,7,6,1,1)
 p1L.addWidget(p1Graph,1,0,4,4)
@@ -625,6 +739,11 @@ p1L.addWidget(stpb,5,1,1,1)
 p1L.addWidget(clb,6,1,1,1)
 p1L.addWidget(vecLabel,1,6,2,1)
 p1L.addWidget(p1testTime,3,6,2,1)
+p1L.addWidget(linac_eb,5,2,1,1)
+p1L.addWidget(linac_rb,6,2,1,1)
+p1L.addWidget(valve_op,5,3,1,1)
+p1L.addWidget(valve_cl,6,3,1,1)
+
 p1.setLayout(p1L)
 mp.addTab(p1,"Page 1")
 #####################################
@@ -640,14 +759,14 @@ p2appStat.setText("Status: {}".format(appStatus))
 p2appStat.setFrameShape(QFrame.Box)
 newsub_b = nsButton()
 loadsub_b = lsButton()
-#addLog = addLogButton()
+addLog = addLogButton()
 
 
 p2L.addWidget(p2IDL,0,6,1,1)
 p2L.addWidget(p2appStat,7,6,1,1)
 p2L.addWidget(newsub_b,2,1,1,3)
 p2L.addWidget(loadsub_b,4,1,1,3)
-#p2L.addWidget(addLog,3,5,1,2)
+p2L.addWidget(addLog,3,5,1,2)
 
 p2.setLayout(p2L)
 mp.addTab(p2,"Page 2")

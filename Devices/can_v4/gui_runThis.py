@@ -18,7 +18,7 @@ from math import *
 from pandas import read_csv as rc
 from statistics import mean
 import RPi.GPIO as GPIO
-
+GPIO.setmode(GPIO.BOARD)
 global appStatus
 appStatus = "Ready"
 global idVal
@@ -594,7 +594,7 @@ class nsButton(QPushButton):
         ## This function generates the files and folders required for each subject also updates the database
         subN = str(subNumber)[1:-1]
         filename = 'id' + str(subN)
-        directory = '/Data/byID/' + filename
+        directory = 'Data/byID/' + filename
         if not os.path.exists(directory):
             os.makedirs(directory)
 
@@ -685,7 +685,7 @@ class valve_clb(QPushButton):
         print("Valve Closed")
 
 linAc = LinearActuator(8,10)
-valve1 = valve("main",14)
+valve1 = Valve("main",22)
 
 mos1 = MOS(adc1,0)
 mos2 = MOS(adc1,1)

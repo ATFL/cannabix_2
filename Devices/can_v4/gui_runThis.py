@@ -595,9 +595,9 @@ class nsButton(QPushButton):
         global curDir
         subN = str(subNumber)[1:-1]
         # filename = 'id' + str(subN)
-        # directory = 'Data/byID/' + filename
         filename = 'id{}'.format(subN)
-        directory = '{}/Data/byID/{}'.format(curDir,filename)
+        directory = 'Data/byID/' + filename
+        #directory = '{}/Data/byID/{}'.format(curDir,filename)
         if not os.path.exists(directory):
             os.makedirs(directory)
 

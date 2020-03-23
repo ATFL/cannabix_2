@@ -22,8 +22,23 @@ from statistics import mean
 import RPi.GPIO as GPIO
 import Adafruit_ADS1x15 as ads
 
-
 GPIO.setmode(GPIO.BOARD)
+
+global curDir
+curDir = os.getcwd()
+global today
+today = date.today()
+
+#### CONFIGUREABLES ####
+global device_version
+global totalTime
+global bsc
+global exp
+device_version = 3 # This is the device version just to ensure that we have some sort of idea what we are using
+totalTime = 35 # This will be the total runtime
+bsc = 10 # This will be the base line check time
+exp = 15 # This will be the exposure time
+
 global appStatus
 appStatus = "Ready"
 global idVal
@@ -40,18 +55,6 @@ global pressVal_last
 pressVal_last = 0
 global oxVal_last
 oxVal_last = 0
-global curDir
-curDir = os.getcwd()
-global today
-today = date.today()
-global device_version
-device_version = 3
-global totalTime
-global bsc
-global exp
-totalTime = 35
-bsc = 10
-exp = 15
 global p3temp
 global p3hum
 global p3press
@@ -65,6 +68,7 @@ global p3sens1
 global p3sens2
 global p3sens3
 global p3sens4
+
 global idPath
 idPath = "{}/Data/byID/id{}/".format(curDir,idVal)
 
@@ -197,6 +201,7 @@ class MOS:
         # global testTime
         # return sin(time.time())*5
 
+    # TODO: make functions to read temp pressure humidity and oxygen
     def print(self):
         self.read()
         #print("\nReading from MOS: {}".format(self.conversion_value))
@@ -601,12 +606,12 @@ class nsButton(QPushButton):
         ## This function generates the files and folders required for each subject also updates the database
         global curDir
         print(subNumber)
-        subN = str(subNumber)#[1:-1]
+        subN = str(subNumber)
         print(subN)
-        #filename = 'id' + str(idVal)
+
         filename = 'id{}'.format(subN)
         print(filename)
-        #directory = 'Data/byID/' + filename
+
         directory = 'Data/byID/{}'.format(filename)
         print(directory)
 
@@ -711,6 +716,7 @@ class valve_clb(QPushButton):
         self.clicked.connect(lambda: valve1.disable())
         print("Valve Closed")
 
+#### EXTERNAL COMPONENT SELECTION ####
 linAc = LinearActuator(8,10)
 valve1 = Valve("main",22)
 

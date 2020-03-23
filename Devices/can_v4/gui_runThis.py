@@ -592,18 +592,23 @@ class nsButton(QPushButton):
 
     def genSubject(self,subNumber):
         ## This function generates the files and folders required for each subject also updates the database
+        global curDir
         subN = str(subNumber)[1:-1]
-        filename = 'id' + str(subN)
-        directory = 'Data/byID/' + filename
+        # filename = 'id' + str(subN)
+        # directory = 'Data/byID/' + filename
+        filename = 'id{}'.format(subN)
+        directory = '{}/Data/byID/{}'.format(curDir,filename)
         if not os.path.exists(directory):
             os.makedirs(directory)
 
         global today
-        global curDir
+        #global curDir
         global device_version
         creationDate = today.strftime("%d-%m-%Y")
-        f = open(directory + '/' + filename + '.txt',"w+")
-        init_message = "ID Number: "+ subN+ "\nCreated on: " + str(creationDate) + "\nDevice Version: " + str(device_version) + "\n-----------------------"
+        #f = open(directory + '/' + filename + '.txt',"w+")
+        f = open('{}/{}.txt'.format(directory,filename),'w+')
+        #init_message = "ID Number: "+ subN+ "\nCreated on: " + str(creationDate) + "\nDevice Version: " + str(device_version) + "\n-----------------------"
+        init_message = 'ID Number: {}\nCreated On: {}\nDevice Version: {} \n-----------------------'.format(subN,creationDate,device_version)
         f.write(init_message)
 
         #Update database

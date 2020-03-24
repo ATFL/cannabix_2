@@ -707,18 +707,20 @@ class valve_opb(QPushButton):
         self.setStyleSheet("QPushButton {font: 20px}")
         self.setText("Valve Open")
         self.clicked.connect(lambda: valve1.enable())
-        print("Extend Linear Actuator")
+        print("Valve Open")
 class valve_clb(QPushButton):
     def __init__(self,parent=None):
         super(valve_clb,self).__init__()
         self.setStyleSheet("QPushButton {font: 20px}")
         self.setText("Valve Closed")
         self.clicked.connect(lambda: valve1.disable())
+        #self.clicked.connect(lambda: valve2.disable())
         print("Valve Closed")
 
 #### EXTERNAL COMPONENT SELECTION ####
 linAc = LinearActuator(8,10)
 valve1 = Valve("main",22)
+valve2 = Valve("main2",24)
 
 mos1 = MOS(adc1,0)
 mos2 = MOS(adc1,1)

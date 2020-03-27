@@ -34,11 +34,14 @@ global device_version
 global totalTime
 global bsc
 global exp
+global postpurge_time
 device_version = 3 # This is the device version just to ensure that we have some sort of idea what we are using
 totalTime = 35 # This will be the total runtime
 bsc = 10 # This will be the base line check time
 exp = 15 # This will be the exposure time
+postpurge_time = 30
 
+#######################
 global appStatus
 appStatus = "Ready"
 global idVal
@@ -187,6 +190,8 @@ def saveFile(data):
     updateLog()
     np.savetxt("{}id{}_{}.csv".format(idPath,idVal,curTime),data,fmt='%.10f',delimiter=',')
     print('File Saved')
+
+
 class MOS:
     def __init__(self, adc, channel):
 
@@ -267,6 +272,24 @@ class startTest(QPushButton):
         self.setStyleSheet("QPushButton {font: 20px}")
         self.setText("Start Test")
         self.clicked.connect(lambda: self.startTest())
+
+    def purge(self):
+        global postpurge_time
+        app.processEvents()
+        purgestart = time.time()
+        appStatus = "Purging - 0"
+        refreshStatus()
+        while((time.time() - purgestart) < postpurge_time and tgStatus == 1):
+            valve1.enable()
+            valve2.enable()
+            valve3.enable()
+            app.processEvents()
+
+        valve1.disable()
+        valve2.disable()
+        valve3.disable()
+        appStatus = "Purging - 1"
+        refreshStatus()
 
     def startTest(self):
         clear_all()
@@ -370,6 +393,13 @@ class startTest(QPushButton):
                 saveFile(all_data)
             else:
                 print('File Not Saved')
+
+            ok3 = QMessageBox.information(self,"Purge","Connect Pump and click yes to purge",QMessageBox.Yes| QMessageBox.No)
+            if(ok3 == QMessageBox.Yes):
+                print("starting purge")
+                self.purge()
+            else:
+                pass
             appStatus = 'Ready'
             refreshStatus()
         else:
@@ -707,6 +737,8 @@ class valve_opb(QPushButton):
         self.setStyleSheet("QPushButton {font: 20px}")
         self.setText("Valve Open")
         self.clicked.connect(lambda: valve1.enable())
+        self.clicked.connect(lambda: valve2.enable())
+        self.clicked.connect(lambda: valve3.enable())
         print("Valve Open")
 class valve_clb(QPushButton):
     def __init__(self,parent=None):
@@ -714,14 +746,15 @@ class valve_clb(QPushButton):
         self.setStyleSheet("QPushButton {font: 20px}")
         self.setText("Valve Closed")
         self.clicked.connect(lambda: valve1.disable())
-        #self.clicked.connect(lambda: valve2.disable())
+        self.clicked.connect(lambda: valve2.disable())
+        self.clicked.connect(lambda: valve3.disable())
         print("Valve Closed")
 
 #### EXTERNAL COMPONENT SELECTION ####
 linAc = LinearActuator(8,10)
-valve1 = Valve("main",22)
-valve2 = Valve("main2",24)
-
+valve1 = Valve("main",18)
+valve2 = Valve("main2",15)
+valve3 - Valve("main3",16)
 mos1 = MOS(adc1,0)
 mos2 = MOS(adc1,1)
 mos3 = MOS(adc1,2)

@@ -722,6 +722,7 @@ class linAC_extend(QPushButton):
         super(linAC_extend,self).__init__()
         self.setStyleSheet("QPushButton {font: 20px}")
         self.setText("linAC Extend")
+        global linAc
         self.clicked.connect(lambda: linAc.extend())
         print("Extend Linear Actuator")
 class linAC_retract(QPushButton):
@@ -729,6 +730,7 @@ class linAC_retract(QPushButton):
         super(linAC_retract,self).__init__()
         self.setStyleSheet("QPushButton {font: 20px}")
         self.setText("linAC Retract")
+        global linAc
         self.clicked.connect(lambda: linAc.retract())
         print("Retract Linear Actuator")
 class valve_opb(QPushButton):
@@ -736,6 +738,9 @@ class valve_opb(QPushButton):
         super(valve_opb,self).__init__()
         self.setStyleSheet("QPushButton {font: 20px}")
         self.setText("Valve Open")
+        global valve1
+        global valve2
+        global valve3
         self.clicked.connect(lambda: valve1.enable())
         self.clicked.connect(lambda: valve2.enable())
         self.clicked.connect(lambda: valve3.enable())

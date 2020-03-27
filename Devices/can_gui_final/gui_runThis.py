@@ -224,24 +224,36 @@ class LinearActuator:
         GPIO.output(self.pinEnable, GPIO.HIGH)
         self.pwm = GPIO.PWM(pinLA, 50)
         self.pwm.start(8.5)
+        timestart = time.time()
+        while((time.time() - timestart) < 2):
+            time.sleep(0.1)
+            app.processEvents()
         GPIO.output(self.pinEnable, GPIO.LOW)
-        self.state = 'r'
+        #self.state = 'r'
 
     def extend(self):
         print('Extending linear actuator.')
         GPIO.output(self.pinEnable, GPIO.HIGH)
         extending = 5.55 #5.3
-        self.pwm.ChangeDutyCycle(extending) #5.3
+        self.pwm.ChangeDutyCycle(extending)
+        timestart = time.time()
+        while((time.time() - timestart) < 2):
+            time.sleep(0.1)
+            app.processEvents() #5.3
         print('Extended at',extending)
         GPIO.output(self.pinEnable, GPIO.LOW)
-        self.state = 'e'
+        #self.state = 'e'
 
     def retract(self):
         print('Retracting linear actuator.')
         GPIO.output(self.pinEnable, GPIO.HIGH)
         self.pwm.ChangeDutyCycle(8.5)
+        timestart = time.time()
+        while((time.time() - timestart) < 2):
+            time.sleep(0.1)
+            app.processEvents()
         GPIO.output(self.pinEnable, GPIO.LOW)
-        self.state = 'r'
+        #self.state = 'r'
 class Valve:
     def __init__(self, name, pin):
         self.name = name
@@ -766,7 +778,7 @@ global valve2
 global valve3
 valve1 = Valve("main",18)
 valve2 = Valve("main2",15)
-valve3 - Valve("main3",16)
+valve3 = Valve("main3",16)
 mos1 = MOS(adc1,0)
 mos2 = MOS(adc1,1)
 mos3 = MOS(adc1,2)

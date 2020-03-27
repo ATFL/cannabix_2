@@ -745,13 +745,20 @@ class valve_clb(QPushButton):
         super(valve_clb,self).__init__()
         self.setStyleSheet("QPushButton {font: 20px}")
         self.setText("Valve Closed")
+        global valve1
+        global valve2
+        global valve3
         self.clicked.connect(lambda: valve1.disable())
         self.clicked.connect(lambda: valve2.disable())
         self.clicked.connect(lambda: valve3.disable())
         print("Valve Closed")
 
 #### EXTERNAL COMPONENT SELECTION ####
+global linAc
 linAc = LinearActuator(8,10)
+global valve1
+global valve2
+global valve3
 valve1 = Valve("main",18)
 valve2 = Valve("main2",15)
 valve3 - Valve("main3",16)

@@ -225,35 +225,43 @@ class LinearActuator:
         self.pwm = GPIO.PWM(pinLA, 50)
         self.pwm.start(8.5)
         timestart = time.time()
-        while((time.time() - timestart) < 2):
-            time.sleep(0.1)
+        while((time.time() - timestart) < 1):
+            # time.sleep(0.1)
             app.processEvents()
         GPIO.output(self.pinEnable, GPIO.LOW)
-        #self.state = 'r'
+        self.state = 'r'
 
     def extend(self):
-        print('Extending linear actuator.')
+        #print('Extending linear actuator.')
         GPIO.output(self.pinEnable, GPIO.HIGH)
         extending = 5.55 #5.3
         self.pwm.ChangeDutyCycle(extending)
         timestart = time.time()
-        while((time.time() - timestart) < 2):
-            time.sleep(0.1)
+        while((time.time() - timestart) < 1):
+            # time.sleep(0.1)
             app.processEvents() #5.3
-        print('Extended at',extending)
+        #print('Extended at',extending)
         GPIO.output(self.pinEnable, GPIO.LOW)
-        #self.state = 'e'
+        self.state = 'e'
 
     def retract(self):
-        print('Retracting linear actuator.')
+        #print('Retracting linear actuator.')
         GPIO.output(self.pinEnable, GPIO.HIGH)
         self.pwm.ChangeDutyCycle(8.5)
         timestart = time.time()
-        while((time.time() - timestart) < 2):
-            time.sleep(0.1)
+        while((time.time() - timestart) < 1):
+            # time.sleep(0.1)
             app.processEvents()
         GPIO.output(self.pinEnable, GPIO.LOW)
-        #self.state = 'r'
+        self.state = 'r'
+
+    def default(self):
+        #print('Moving linear actuator to default (center) position.')
+        GPIO.output(self.pinEnable, GPIO.HIGH)
+        self.pwm.ChangeDutyCycle(6)
+        time.sleep(1.5)
+        GPIO.output(self.pinEnable, GPIO.LOW)
+        self.state = 'd'
 class Valve:
     def __init__(self, name, pin):
         self.name = name
@@ -285,23 +293,75 @@ class startTest(QPushButton):
         self.setText("Start Test")
         self.clicked.connect(lambda: self.startTest())
 
-    def purge(self):
-        global postpurge_time
-        app.processEvents()
-        purgestart = time.time()
-        appStatus = "Purging - 0"
-        refreshStatus()
-        while((time.time() - purgestart) < postpurge_time and tgStatus == 1):
-            valve1.enable()
-            valve2.enable()
-            valve3.enable()
-            app.processEvents()
 
+    def pre_purge(self):
         valve1.disable()
         valve2.disable()
         valve3.disable()
-        appStatus = "Purging - 1"
+        if(linAc.state != 'r'):
+            linAc.retract()
+        print("Starting Purge - 0")
+        global appStatus
+        appStatus = "Purge - 0"
         refreshStatus()
+        global pur0Time
+        global pur1Time
+        pur0Start = time.time()
+        while((time.time() - pur0Start) < pur0Time and tgStatus == 1):
+            if(valve1.state != True):
+                valve1.enable()
+            app.processEvents()
+        valve1.disable()
+        if(linAc.state != 'e'):
+            linAc.extend()
+        print("Starting Purge - 1")
+        appStatus = "Purge - 1"
+        refreshStatus()
+        pur1Start = time.time()
+        while((time.time() - pur1Start) < pur1Time and tgStatus == 1):
+            if(linAc.state != 'e'):
+                linAc.extend()
+            if(valve2.state != True):
+                valve2.enable()
+            if(valve3.state != True):
+                valve3.enable()
+            app.processEvents()
+        if(linAc.state != 'r'):
+            linAc.retract()
+        if(valve1.state != False):
+            valve1.disable()
+        if(valve2.state != False):
+            valve2.disable()
+        if(valve3.state != False):
+            valve3.disable()
+        app.processEvents()
+    def post_purge(self):
+        global pur2Time
+        app.processEvents()
+        purgestart = time.time()
+        global appStatus
+        appStatus = "Purge - 2"
+        refreshStatus()
+        valve1.enable()
+        valve2.enable()
+        valve3.enable()
+        if(linAc.state != 'd'):
+            linAc.default()
+        while((time.time() - purgestart) < pur2Time and tgStatus == 1):
+            app.processEvents()
+            if(linAc.state != 'd'):
+                linAc.default()
+            if(valve1.state != True):
+                valve1.enable()
+            if(valve2.state != True):
+                valve2.enable()
+            if(valve3.state != True):
+                valve3.enable()
+        valve1.disable()
+        valve2.disable()
+        valve3.disable()
+        if(linAc.state != 'r'):
+            linAc.retract()
 
     def startTest(self):
         clear_all()
@@ -340,6 +400,14 @@ class startTest(QPushButton):
         global bsc
         global exp
 
+        #### START UP CHECKS ####
+        valve1.disable()
+        valve2.disable()
+        valve3.disable()
+        if(linAc.state != 'r'):
+            linAc.retract()
+        QMessageBox.information(self,"Pre Test Purge","Press okay to initiate Pre-Test Purge",QMessageBox.Ok)
+        pre_purge()
 
         ok1 = QMessageBox.information(self,"Test ID","Using ID {:d}. Press Ok if Correct".format(idVal),QMessageBox.Ok | QMessageBox.No)
         if(ok1 == QMessageBox.Ok):
@@ -409,7 +477,7 @@ class startTest(QPushButton):
             ok3 = QMessageBox.information(self,"Purge","Connect Pump and click yes to purge",QMessageBox.Yes| QMessageBox.No)
             if(ok3 == QMessageBox.Yes):
                 print("starting purge")
-                self.purge()
+                self.post_purge()
             else:
                 pass
             appStatus = 'Ready'
@@ -892,3 +960,4 @@ mp.addTab(p3,"Page 3")
 #####################################
 mp.show()
 app.exec_()
+GPIO.cleanup()

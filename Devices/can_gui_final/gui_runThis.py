@@ -35,6 +35,7 @@ global totalTime
 global bsc
 global exp
 global postpurge_time
+
 device_version = 3 # This is the device version just to ensure that we have some sort of idea what we are using
 totalTime = 35 # This will be the total runtime
 bsc = 10 # This will be the base line check time

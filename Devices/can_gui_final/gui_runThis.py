@@ -35,11 +35,18 @@ global totalTime
 global bsc
 global exp
 global postpurge_time
+global pur0Time
+global pur1Time
+global pur2Time
 device_version = 3 # This is the device version just to ensure that we have some sort of idea what we are using
 totalTime = 35 # This will be the total runtime
 bsc = 10 # This will be the base line check time
 exp = 15 # This will be the exposure time
 postpurge_time = 30
+pur0Time= 10
+pur1Time= 10
+pur2Time=10
+
 
 #######################
 global appStatus
@@ -84,7 +91,7 @@ sensor4name = '822'
 bgGrey = '#A9A9A9'
 
 adc1 = ads.ADS1115(0x48)
-adc2 = ads.ADS1115(0x48)
+adc2 = ads.ADS1115(0x49)
 
 def refreshID():
     global idPath
@@ -225,21 +232,23 @@ class LinearActuator:
         self.pwm = GPIO.PWM(pinLA, 50)
         self.pwm.start(8.5)
         timestart = time.time()
-        while((time.time() - timestart) < 1):
+        while((time.time() - timestart) < 1.5):
             # time.sleep(0.1)
-            app.processEvents()
+            #app.processEvents()
+            pass
         GPIO.output(self.pinEnable, GPIO.LOW)
         self.state = 'r'
 
     def extend(self):
         #print('Extending linear actuator.')
         GPIO.output(self.pinEnable, GPIO.HIGH)
-        extending = 5.55 #5.3
+        extending = 5.3 #5.3
         self.pwm.ChangeDutyCycle(extending)
         timestart = time.time()
-        while((time.time() - timestart) < 1):
+        while((time.time() - timestart) < 1.5):
             # time.sleep(0.1)
-            app.processEvents() #5.3
+            #app.processEvents() #5.3
+            pass
         #print('Extended at',extending)
         GPIO.output(self.pinEnable, GPIO.LOW)
         self.state = 'e'
@@ -249,9 +258,10 @@ class LinearActuator:
         GPIO.output(self.pinEnable, GPIO.HIGH)
         self.pwm.ChangeDutyCycle(8.5)
         timestart = time.time()
-        while((time.time() - timestart) < 1):
+        while((time.time() - timestart) < 1.5):
             # time.sleep(0.1)
-            app.processEvents()
+            #app.processEvents()
+            pass
         GPIO.output(self.pinEnable, GPIO.LOW)
         self.state = 'r'
 
@@ -404,10 +414,11 @@ class startTest(QPushButton):
         valve1.disable()
         valve2.disable()
         valve3.disable()
+        tgStatus = 1
         if(linAc.state != 'r'):
             linAc.retract()
         QMessageBox.information(self,"Pre Test Purge","Press okay to initiate Pre-Test Purge",QMessageBox.Ok)
-        pre_purge()
+        self.pre_purge()
 
         ok1 = QMessageBox.information(self,"Test ID","Using ID {:d}. Press Ok if Correct".format(idVal),QMessageBox.Ok | QMessageBox.No)
         if(ok1 == QMessageBox.Ok):

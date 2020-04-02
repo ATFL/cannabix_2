@@ -34,19 +34,13 @@ global device_version
 global totalTime
 global bsc
 global exp
-global postpurge_time
-<<<<<<< HEAD
-
-=======
 global pur0Time
 global pur1Time
 global pur2Time
->>>>>>> 8eaddbf51b7d9f6acfd004092c19dafc95555c38
 device_version = 3 # This is the device version just to ensure that we have some sort of idea what we are using
 totalTime = 35 # This will be the total runtime
 bsc = 10 # This will be the base line check time
 exp = 15 # This will be the exposure time
-postpurge_time = 30
 pur0Time= 10
 pur1Time= 10
 pur2Time=10
@@ -216,8 +210,15 @@ class MOS:
         return self.conversion_value
         # global testTime
         # return sin(time.time())*5
-
+    def read_hum(self):
+        self.conversion_value = (self.adc.read_adc(self.channel,gain=self.GAIN)/pow(2, 15))*6.144
+        self.conversion_value2 = self.conversion_value/5*125-12.5
+        return self.conversion_value2
     # TODO: make functions to read temp pressure humidity and oxygen
+    def read_temp(self):
+        self.conversion_value = (self.adc.read_adc(self.channel,gain=self.GAIN)/pow(2, 15))*6.144
+        self.conversion_value2 = self.conversion_value/5*218.75-66.875
+        return self.conversion_value2
     def print(self):
         self.read()
         #print("\nReading from MOS: {}".format(self.conversion_value))
@@ -472,8 +473,8 @@ class startTest(QPushButton):
                 sens2.append(mos2.read())
                 sens3.append(mos3.read())
                 sens4.append(mos4.read())
-                tempVal.append(mos5.read())
-                humVal.append(mos6.read())
+                tempVal.append(mos5.read_temp())
+                humVal.append(mos6.read_hum())
                 pressVal.append(mos7.read())
                 oxVal.append(mos8.read())
                 tempVal_last = tempVal[-1]

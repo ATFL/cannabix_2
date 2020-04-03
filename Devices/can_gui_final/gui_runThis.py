@@ -196,7 +196,6 @@ def saveFile(data):
     np.savetxt("{}id{}_{}.csv".format(idPath,idVal,curTime),data,fmt='%.10f',delimiter=',')
     print('File Saved')
 
-
 class MOS:
     def __init__(self, adc, channel):
 
@@ -222,6 +221,7 @@ class MOS:
     def print(self):
         self.read()
         #print("\nReading from MOS: {}".format(self.conversion_value))
+
 class graph(pg.PlotWidget):
     def __init(self,parent=None):
         super(graph,self).__init__()
@@ -473,8 +473,8 @@ class startTest(QPushButton):
                 sens2.append(mos2.read())
                 sens3.append(mos3.read())
                 sens4.append(mos4.read())
-                tempVal.append(mos5.read_temp())
-                humVal.append(mos6.read_hum())
+                tempVal.append(mos6.read_temp())
+                humVal.append(mos7.read_hum())
                 pressVal.append(mos7.read())
                 oxVal.append(mos8.read())
                 tempVal_last = tempVal[-1]
@@ -500,7 +500,6 @@ class startTest(QPushButton):
             refreshStatus()
         else:
             QMessageBox.information(self,"Test Cancelled","Select Proper ID and Try again.",QMessageBox.Ok)
-
 class liveReading(QPushButton):
     def __init__(self,parent=None):
         super(liveReading,self).__init__()
@@ -634,6 +633,7 @@ class clear2(QPushButton):
             p3ox = []
             p3Graph.clear()
             p3vecLabel.setText("Temp: {}℃ \n\nHumidity: {}% \n\nPressure: {}kPa \n\nOxygen: {}%".format('','','',''))
+
 class loadDataButton(QPushButton):
     def __init__(self,parent=None):
         super(loadDataButton,self).__init__()
@@ -792,7 +792,6 @@ class lsButton(QPushButton):
             print('Old Subject Loaded')
         else:
             print('ID Not Found')
-
 class addLogButton(QPushButton):
     ### This Function Generates a Button to load old subjects
     def __init__(self,parent=None):
@@ -804,6 +803,7 @@ class addLogButton(QPushButton):
     def addLog(self):
         app.processEvents()
         updateLog()
+
 class analyze(QPushButton):
     def __init__(self,parent=None):
         super(analyze,self).__init__()

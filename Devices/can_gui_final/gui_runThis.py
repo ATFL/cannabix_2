@@ -193,7 +193,9 @@ def saveFile(data):
     refreshStatus()
 
     updateLog()
-    np.savetxt("{}id{}_{}.csv".format(idPath,idVal,curTime),data,fmt='%.10f',delimiter=',')
+    ### POS or Neg Check ###
+    presMsg,svok = QInputDialog.getText(None,"THC Presence","Type Positive or Negative")
+    np.savetxt("{}id{}_{}_{}.csv".format(idPath,idVal,curTime,presMsg),data,fmt='%.10f',delimiter=',')
     print('File Saved')
 
 class MOS:

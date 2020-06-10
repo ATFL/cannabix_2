@@ -266,6 +266,9 @@ class Frontpage(QWidget):
         self.vcb = self.valve_cl()
         # Button Actions
         self.stb.clicked.connect(lambda: self.runTest())
+        self.lrb.clicked.connect(lambda: self.lgTest())
+        self.clb.clicked.connect(lambda: self.clrfcn())
+        self.stpb.clicked.connect(lambda: self.stop())
         # SET LAYOUT #
         self.layout.addWidget(self.idL, 0, 6, 1, 1)
         self.layout.addWidget(self.appStat, 7, 6, 1, 1)

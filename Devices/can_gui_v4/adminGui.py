@@ -22,6 +22,9 @@ adc2 = ads.ADS1115(0x48)
 global idVal
 global directory
 global filename
+global appStatus
+global window
+global appStatGlobe
 filename = ''
 idVal = 0
 directory = 'Data/byID/id{}'.format(idVal)
@@ -87,11 +90,13 @@ class LinearActuator:
         GPIO.output(self.pinEnable, GPIO.HIGH)
         extending = 5.3  # 5.3
         self.pwm.ChangeDutyCycle(extending)
+        print("Extending")
         QTimer.singleShot(1.5*1000, lambda: GPIO.output(self.pinEnable, GPIO.LOW))
         self.state = 'e'
 
     def retract(self):
         # print('Retracting linear actuator.')
+        print("Retracting") 
         GPIO.output(self.pinEnable, GPIO.HIGH)
         self.pwm.ChangeDutyCycle(8.5)
         QTimer.singleShot(1.5*1000, lambda: GPIO.output(self.pinEnable, GPIO.LOW))
@@ -237,8 +242,10 @@ class Frontpage(QWidget):
 
     def UI(self):
         self.layout = QGridLayout()
+        global idVal
         self.idL = QLabel('ID: {:d}'.format(idVal))
         self.idL.setFrameShape(QFrame.Box)
+        global appStatus
         self.appStat = QLabel('Status: {}'.format(appStatus))
         self.appStat.setFrameShape(QFrame.Box)
         self.testTime = QLabel('Baseline Check Time: {}s \n\n'
@@ -257,7 +264,7 @@ class Frontpage(QWidget):
         self.graph = self.Graph()
         # Buttons
         self.stb = self.startTest()
-        self.lrb = self.liveReading()
+        self.lirb = self.liveReading()
         self.stpb = self.stop()
         self.clb = self.clear()
         self.leb = self.linac_eb()
@@ -266,9 +273,9 @@ class Frontpage(QWidget):
         self.vcb = self.valve_cl()
         # Button Actions
         self.stb.clicked.connect(lambda: self.runTest())
-        self.lrb.clicked.connect(lambda: self.lgTest())
+        self.lirb.clicked.connect(lambda: self.lgTest())
         self.clb.clicked.connect(lambda: self.clrfcn())
-        self.stpb.clicked.connect(lambda: self.stop())
+        self.stpb.clicked.connect(lambda: self.stopTest())
         # SET LAYOUT #
         self.layout.addWidget(self.idL, 0, 6, 1, 1)
         self.layout.addWidget(self.appStat, 7, 6, 1, 1)
@@ -276,7 +283,7 @@ class Frontpage(QWidget):
         self.layout.addWidget(self.testTime, 3, 6, 2, 1)
         self.layout.addWidget(self.graph, 1, 0, 4, 4)
         self.layout.addWidget(self.stb, 5, 0, 1, 1)
-        self.layout.addWidget(self.lrb, 6, 0, 1, 1)
+        self.layout.addWidget(self.lirb, 6, 0, 1, 1)
         self.layout.addWidget(self.stpb, 5, 1, 1, 1)
         self.layout.addWidget(self.clb, 6, 1, 1, 1)
         self.layout.addWidget(self.leb, 5, 2, 1, 1)
@@ -305,12 +312,41 @@ class Frontpage(QWidget):
         self.oxVal_last = 0  # Last value for the UI
 
         self.graph.clear()
-
+        
+        global appStatus
+        appStatus = "Status: Ready"
+        self.appStat.setText(appStatus)
+        global window
+        window.subject.appStat.setText(appStatus)
+        window.data.appStat.setText(appStatus) 
     def stopTest(self):
+        global appStatus
+        appStatus = "Status: Test Aborted"
+        self.appStat.setText(appStatus)
+        window.front.appStat.setText(appStatus)
+        window.subject.appStat.setText(appStatus)
+        window.data.appStat.setText(appStatus)
+        self.appStat.setText(appStatus)
+        app.processEvents()
         if self.runStatus == 1:
-            self.runTest.endTest()
+            
+            if 'dataTimer' in globals():
+                global dataTimer
+                dataTimer.stop()
+            # dataTimer.setInterval(0)
+                global uiTimer
+                uiTimer.stop()
+            # uiTimer.setInterval(0)
+            la.retract()
+            valve1.disable()
+            valve2.disable()
+            valve3.disable()
+            print('Accessories Reset')
+            
         elif self.runStatus == 2:
-            self.lgTest.endTest()
+            global lgTimer
+            lgTimer.stop()
+           
         else:
             pass
 
@@ -318,6 +354,8 @@ class Frontpage(QWidget):
         self.runStatus = 2
         self.clrfcn()
         print('Live Graph')
+        global appStatus
+        appStatus = "Live Graph"
         self.appStat.setText('Live Graph')
         self.lgTime = list(range(100))
         self.lgsens1 = [0 for _ in range(100)]
@@ -331,7 +369,6 @@ class Frontpage(QWidget):
 
         def endTest():
             lgTimer.stop()
-
         def updateUI():
             self.lgsens1 = self.lgsens1[1:]
             self.lgsens2 = self.lgsens2[1:]
@@ -347,16 +384,57 @@ class Frontpage(QWidget):
             self.lgplot2.setData(self.lgTime, self.lgsens2)
             self.lgplot3.setData(self.lgTime, self.lgsens3)
             # self.lgplot4.setData(self.lgTime, self.lgsens4)
-
+            
+            global appStatus
+            global window
+            window.subject.appStat.setText(appStatus)
+            window.data.appStat.setText(appStatus)
+        global lgTimer
         lgTimer = QTimer()
-        lgTimer.timeout.connect(updateUI())
+        lgTimer.timeout.connect(lambda: updateUI())
         lgTimer.start(100)
 
+    def purge(self):
+        global appStatus
+        appStatus = "Status: Purging"
+        self.appStat.setText(appStatus)
+        window.subject.appStat.setText(appStatus)
+        window.data.appStat.setText(appStatus)
+        app.processEvents()
+      
+        valve1.disable()
+        valve2.disable()
+        valve3.disable()
+        la.retract()
+        purge0time = 5
+        purge1time = 5
+        purgeBeg = time.time()
+        print("Purge 0") 
+        while((time.time() - purgeBeg) < purge1time):
+            valve1.enable()
+            app.processEvents()
+        valve1.disable()
+        la.extend()
+        print("Purge 1")
+        purgeBeg = time.time() 
+        while((time.time() - purgeBeg) < purge1time):
+            valve2.enable()
+            app.processEvents()
+            valve3.enable()
+        la.retract()
+        valve1.disable()
+        valve2.disable()
+        valve3.disable()
     def runTest(self):
         self.runStatus = 1
         self.clrfcn()
+        self.purge()
         print('Testing')
+        global appStatus
+        appStatus = "Testing"
         self.appStat.setText('Testing')
+        
+        ## end of purge phase 
         la.retract()
         valve1.disable()
         valve2.disable()
@@ -366,8 +444,9 @@ class Frontpage(QWidget):
         self.p2 = self.graph.plot(self.runTime, self.sens2, pen='g', name='{}'.format(s2n))
         self.p3 = self.graph.plot(self.runTime, self.sens3, pen='b', name='{}'.format(s3n))
         # self.p1 = self.graph.plot(self.runTime, self.sens1, pen - 'r', name='{}'.format(s1n)) # Normally Commented Out
-
+        
         def updateData():
+            app.processEvents()
             self.runTime.append(time.time() - startTime)
             self.sens1.append(mos1.read())
             self.sens2.append(mos2.read())
@@ -379,6 +458,7 @@ class Frontpage(QWidget):
             self.oxVal.append(mos8.read())
 
         def updateUI():
+            app.processEvents()
             self.p1.setData(self.runTime, self.sens1)
             self.p2.setData(self.runTime, self.sens2)
             self.p3.setData(self.runTime, self.sens3)
@@ -389,7 +469,10 @@ class Frontpage(QWidget):
                                                                                                  int(
                                                                                                      self.pressVal[-1]),
                                                                                                  int(self.oxVal[-1])))
-
+            global appStatus
+            global window
+            window.subject.appStat.setText(appStatus)
+            window.data.appStat.setText(appStatus)
         def endTest():
             dataTimer.stop()
             # dataTimer.setInterval(0)
@@ -405,13 +488,21 @@ class Frontpage(QWidget):
             valve1.disable()
             valve2.disable()
             valve3.disable()
+            self.purge()
+            global appStatus
+            appStatus = "Test Complete"
             print('Accessories Reset')
-
+            self.appStat.setText(appStatus)
+            window.subject.appStat.setText(appStatus)
+            window.data.appStat.setText(appStatus)
+            
         QTimer.singleShot(self.tTime1 * 1000, lambda: la.extend())
         QTimer.singleShot(self.tTime2 * 1000, lambda: la.retract())
         QTimer.singleShot(self.totTime * 1000, lambda: endTest())
+        global dataTimer
         dataTimer = QTimer()
         dataTimer.timeout.connect(lambda: updateData())
+        global uiTimer
         uiTimer = QTimer()
         uiTimer.timeout.connect(lambda: updateUI())
         dataTimer.start(100)
@@ -436,6 +527,9 @@ class Subjectpage(QWidget):
                 idVal = idCheck
                 directory = 'Data/byID/id{}'.format(idVal)
                 print('ID {} Found'.format(idVal))
+                window.front.idL.setText("ID: " + str(idVal))
+                window.subject.idL.setText("ID: " + str(idVal))
+                window.data.idL.setText("ID: " + str(idVal))
 
     class new_subject(QPushButton):
         def __init__(self, parent=None):
@@ -487,13 +581,34 @@ class Subjectpage(QWidget):
             idVal = self.genSubNumber()
             print('Subject {} generated.'.format(idVal))
             self.genSubject()
-            Frontpage.idL.setText('ID: {:d}'.format(idVal))
+            global window
+            window.front.idL.setText("ID: " + str(idVal))
+            window.subject.idL.setText("ID: " + str(idVal))
+            window.data.idL.setText("ID: " + str(idVal))
 
     class addLog(QPushButton):
         def __init__(self, parent=None):
             super(Subjectpage.addLog, self).__init__()
             self.setText('Add Log')
-
+            self.clicked.connect(lambda: self.addLogFunc())
+            
+        def addLogFunc(self):
+            global idVal
+            global curDir
+            global idPath
+            global curTime
+            idPath = "{}/Data/byID/id{}/".format(curDir,idVal)
+            logPath = "{}id{}.txt".format(idPath,idVal)
+            curTime = time.strftime("%d-%m-%y_%H-%M-%S",time.localtime())
+            bar = "-----------------------"
+            f = open(logPath, "a+")
+            message,ok1 = QInputDialog.getText(None, "Custom Log", "Add text if you want a custom message")
+            print(message)
+            if(message !=""):
+                full_txt = "\n{}: {} \n{}".format(curTime,message,bar)
+            else:full_txt = "\n{}: {} \n{}".format(curTime, "New Test Performed", bar)
+            f.write(full_txt)
+                    
     def __init__(self, *args, **kwargs):
         super(Subjectpage, self).__init__(*args, **kwargs)
         self.UI()
@@ -502,6 +617,7 @@ class Subjectpage(QWidget):
         self.layout = QGridLayout()
         self.idL = QLabel('ID: {:d}'.format(idVal))
         self.idL.setFrameShape(QFrame.Box)
+        global appStatus
         self.appStat = QLabel('Status: {}'.format(appStatus))
         self.appStat.setFrameShape(QFrame.Box)
 
@@ -509,7 +625,7 @@ class Subjectpage(QWidget):
         self.layout.addWidget(self.appStat, 7, 6, 1, 1)
         self.layout.addWidget(self.new_subject(), 2, 1, 1, 3)
         self.layout.addWidget(self.load_subject(), 4, 1, 1, 3)
-        self.layout.addWidget(self.addLog(), 3, 5, 1, 2)
+        self.layout.addWidget(self.addLog(), 3, 1, 1, 3)
         self.setLayout(self.layout)
 
 
@@ -570,8 +686,11 @@ class Datapage(QWidget):
         self.layout = QGridLayout()
         self.idL = QLabel('ID: {:d}'.format(idVal))
         self.idL.setFrameShape(QFrame.Box)
+        global appStatus
         self.appStat = QLabel('Status: {}'.format(appStatus))
         self.appStat.setFrameShape(QFrame.Box)
+        global appStatGlobe
+        appStatGlobe = self.appStat
         self.testTime = QLabel('Baseline Check Time: {}s \n\n'
                                'Exposure Time: {}s \n\nRecovery Time: {}s \n\nTotal Time: {}s'.format(self.tTime1,
                                                                                                       self.tTime2 - self.tTime1,
@@ -625,7 +744,12 @@ class Datapage(QWidget):
         self.oxVal_last = 0  # Last value for the UI
 
         self.graph.clear()
-
+        self.graph.plotItem.legend.removeItem(self.p1.name())
+        self.graph.plotItem.legend.removeItem(self.p2.name())
+        self.graph.plotItem.legend.removeItem(self.p3.name())
+        
+        
+        
     def loadDataFcn(self):
         self.fname, self.__var__ = QFileDialog.getOpenFileName(self, 'Open file', '{}'.format(curDir), "CSV Files (*.csv)")
         self.f = rc(self.fname, delimiter = ',')
@@ -638,11 +762,11 @@ class Datapage(QWidget):
         self.tempVal = self.f.iloc[:, 4].values
         self.pressVal = self.f.iloc[:, 5].values
         self.humVal = self.f.iloc[:, 6].values
-        self.oxVal = self.f.iloc[:, 8].values
+        self.oxVal = self.f.iloc[:, 7].values
 
-        self.graph.plot(self.runTime, self.sens1, pen='r', name='{}'.format(s1n))
-        self.graph.plot(self.runTime, self.sens2, pen='g', name='{}'.format(s2n))
-        self.graph.plot(self.runTime, self.sens3, pen='b', name='{}'.format(s3n))
+        self.p1 = self.graph.plot(self.runTime, self.sens1, pen='r', name='{}'.format(s1n))
+        self.p2 = self.graph.plot(self.runTime, self.sens2, pen='g', name='{}'.format(s2n))
+        self.p3 = self.graph.plot(self.runTime, self.sens3, pen='b', name='{}'.format(s3n))
         # self.graph.plot(self.runTime, self.sens4, pen='k', name='{}'.format(s4n))
         self.graph.setYRange(0, 5)
         self.graph.setXRange(0, self.totTime)
@@ -665,14 +789,18 @@ class mainWindow(QWidget):
     def UI(self):
         self.layout = QGridLayout()
         tab = QTabWidget()
-        tab.addTab(Frontpage(), 'Main')
-        tab.addTab(Subjectpage(), 'Subject')
-        tab.addTab(Datapage(), 'Data Loading')
+        self.front = Frontpage()
+        tab.addTab(self.front, 'Main')
+        self.subject = Subjectpage()
+        tab.addTab(self.subject, 'Subject')
+        self.data = Datapage()
+        tab.addTab(self.data, 'Data Loading')
         self.layout.addWidget(tab)
         self.setLayout(self.layout)
 
 
 def main():
+    global window
     window = mainWindow()
     window.show()
     sys.exit(app.exec_())

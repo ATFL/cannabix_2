@@ -1,8 +1,8 @@
-ID Number: 0
-Created On: 19-05-2020
+ID Number: 23
+Created On: 11-06-2020
 Device Version: [3]
 Software Version: [4.1]
 Device ID: [1]
 --------------------
-11-06-20_17-46-57: Hi 
+11-06-20_17-47-20: This is Emily testing things 
 -----------------------

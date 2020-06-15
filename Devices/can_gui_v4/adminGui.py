@@ -428,8 +428,8 @@ class Frontpage(QWidget):
             print('Purging Sequence 3')
 
         p1()
-        QTimer.singleshot(self.pTime2 * 1000, lambda: p2())
-        QTimer.singleshot(self.pTime3 * 1000, lambda: p3())
+        QTimer.singleShot(self.pTime2 * 1000, lambda: p2())
+        QTimer.singleShot(self.pTime3 * 1000, lambda: p3())
 
     def runTest(self):
         self.runStatus = 1

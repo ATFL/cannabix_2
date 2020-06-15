@@ -319,6 +319,7 @@ class Frontpage(QWidget):
         global window
         window.subject.appStat.setText(appStatus)
         window.data.appStat.setText(appStatus) 
+
     def stopTest(self):
         global appStatus
         appStatus = "Status: Test Aborted"
@@ -396,35 +397,40 @@ class Frontpage(QWidget):
 
     def purge(self):
         global appStatus
-        appStatus = "Status: Purging"
+        appStatus = 'purging'
+
         self.appStat.setText(appStatus)
         window.subject.appStat.setText(appStatus)
         window.data.appStat.setText(appStatus)
         app.processEvents()
-      
+
         valve1.disable()
         valve2.disable()
         valve3.disable()
         la.retract()
-        purge0time = 5
-        purge1time = 5
-        purgeBeg = time.time()
-        print("Purge 0") 
-        while((time.time() - purgeBeg) < purge1time):
+
+        def p1():
             valve1.enable()
-            app.processEvents()
-        valve1.disable()
-        la.extend()
-        print("Purge 1")
-        purgeBeg = time.time() 
-        while((time.time() - purgeBeg) < purge1time):
+            print('Purge Sequence 1')
+
+        def p2():
+            valve1.disable()
+            la.extend()
             valve2.enable()
-            app.processEvents()
             valve3.enable()
-        la.retract()
-        valve1.disable()
-        valve2.disable()
-        valve3.disable()
+            print('Purging Sequence 2')
+
+        def p3():
+            valve1.enable()
+            valve2.enable()
+            valve3.enable()
+            la.default()
+            print('Purging Sequence 3')
+
+        p1()
+        QTimer.singleshot(self.pTime2 * 1000, lambda: p2())
+        QTimer.singleshot(self.pTime3 * 1000, lambda: p3())
+
     def runTest(self):
         self.runStatus = 1
         self.clrfcn()
@@ -469,16 +475,10 @@ class Frontpage(QWidget):
                                                                                                  int(
                                                                                                      self.pressVal[-1]),
                                                                                                  int(self.oxVal[-1])))
-            global appStatus
-            global window
-            window.subject.appStat.setText(appStatus)
-            window.data.appStat.setText(appStatus)
+
         def endTest():
             dataTimer.stop()
-            # dataTimer.setInterval(0)
             uiTimer.stop()
-            # uiTimer.setInterval(0)
-
             all_data = np.column_stack((self.runTime, self.sens1, self.sens2, self.sens3, self.tempVal, self.pressVal, self.humVal, self.oxVal))
             global directory
             global idVal
@@ -507,6 +507,7 @@ class Frontpage(QWidget):
         uiTimer.timeout.connect(lambda: updateUI())
         dataTimer.start(100)
         uiTimer.start(1000)
+
 
 class Subjectpage(QWidget):
     class load_subject(QPushButton):

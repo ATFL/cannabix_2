@@ -490,7 +490,7 @@ class Frontpage(QWidget):
             valve3.disable()
             self.purge()
             global appStatus
-            appStatus = "Test Complete"
+            appStatus = 'Test Complete'
             print('Accessories Reset')
             self.appStat.setText(appStatus)
             window.subject.appStat.setText(appStatus)
@@ -745,9 +745,9 @@ class Datapage(QWidget):
         self.oxVal_last = 0  # Last value for the UI
 
         self.graph.clear()
-        self.graph.plotItem.legend.removeItem(self.p1.name())
-        self.graph.plotItem.legend.removeItem(self.p2.name())
-        self.graph.plotItem.legend.removeItem(self.p3.name())
+        # self.graph.plotItem.legend.removeItem(self.p1.name())
+        # self.graph.plotItem.legend.removeItem(self.p2.name())
+        # self.graph.plotItem.legend.removeItem(self.p3.name())
         
         
         
